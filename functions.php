@@ -82,7 +82,7 @@ function getWeeksGames($dbConn, $curWeek, $ranks) {
 				LEFT JOIN teams AS home ON games.homeID = home.id  
 				LEFT JOIN teams AS away ON games.awayID = away.id
 				LEFT JOIN venues AS venue ON games.venueID = venue.id
-				WHERE weekID = ? AND openSpread <= ? ORDER BY startDate ASC';
+				WHERE (weekID = ? AND openSpread <= ?) OR forceInclude = 1 ORDER BY startDate ASC';
 	$queryArray = array($curWeek->weekID, $GLOBALS['threshold']);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	if(sqlsrv_has_rows($rslt)) {
