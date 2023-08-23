@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: image/png');
-session_start();
+if(session_status() == PHP_SESSION_NONE) session_start();
 include('functions.php');
 sqlConnect();
 

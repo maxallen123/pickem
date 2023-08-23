@@ -1,7 +1,7 @@
 <?php
 require('functions.php');
 
-session_start();
+if(session_status() == PHP_SESSION_NONE) session_start();
 $dbConn = sqlConnect();
 $curWeek = getCurWeek($dbConn);
 $ranks = getRankArray($dbConn, $curWeek);

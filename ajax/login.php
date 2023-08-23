@@ -1,6 +1,6 @@
 <?php
 require('../functions.php');
-session_start();
+if(session_status() == PHP_SESSION_NONE) session_start();
 
 if(!(isset($_POST['email']) || isset($_POST['password']))) {
 	echo ('Missing Parameters');

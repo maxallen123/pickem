@@ -1,7 +1,7 @@
 <?php
 
 require('functions.php');
-session_start();
+if(session_status() == PHP_SESSION_NONE) session_start();
 $dbConn = sqlConnect();
 
 // If we're already logged in, update session variables and redirect back to main page

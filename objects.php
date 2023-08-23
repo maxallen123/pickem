@@ -33,7 +33,6 @@ class gameObj {
 	public $pick = null;
 
 	function __construct($gameArray, $curWeek, $dbConn, $ranks) {
-		session_start();
 		$this->id = $gameArray['id'];
 		$this->week = $curWeek;
 		$this->name = $gameArray['name'];
