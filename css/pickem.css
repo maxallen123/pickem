@@ -1,0 +1,93 @@
+.header-status {
+	font-variant: small-caps;
+	font-size: 14px;
+}
+
+.header-lineScore {
+	font-size: 12px;
+	width: 25;
+	text-align: end;
+}
+
+.header-spread {
+	font-size: 12px;
+}
+
+.header-others {
+	font-size: 12px;
+	text-align: center;
+}
+
+.header-pick {
+	font-size: 14px;
+	text-align: center;
+}
+
+.logo {
+	text-align: center;
+	vertical-align: middle;
+}
+
+.rank {
+	text-align: end;
+	font-size: 12px;
+	font-weight: bold;
+}
+
+.teamName {
+	font-size: 14px;
+	font-variant: small-caps;
+	font-weight: bold;
+}
+
+.record {
+	font-size: 11px;
+	font-weight: bold;
+}
+
+.lineScore {
+	font-size: 14px;
+	text-align: end;
+}
+
+.total {
+	font-size: 16px;
+	text-align: end;
+	font-weight: bold;
+}
+
+.spread {
+	font-size: 14px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.othersPicks {
+	font-size: 12px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.venueName {
+	font-size: 14px;
+}
+
+.cityState {
+	font-size: 12px;
+}
+
+.selectPick {
+	font-size: 14px;
+	text-transform: uppercase;
+	font-weight: bold;
+}
+
+.lastRow {
+	height: 27px;
+	font-size: 14px;
+	font-variant: small-caps;
+}
+
+.pickEm {
+	font-variant: small-caps;
+}
