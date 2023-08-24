@@ -7,3 +7,7 @@
 	- Added baseURL global
 8/22/23
 	- Added forceInclude
+	- Removed extraneous session_start() from teamsObj, added checks on all
+		other session_start() commands to reduce unnecessary calls
+8/24/23
+	- Reduced size of ESPN link
