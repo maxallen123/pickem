@@ -15,3 +15,4 @@
 		there to clean up functions.php
 8/25/23
 	- Added ability to compare against other user's picks
+	- Added regular page update
