@@ -6,6 +6,7 @@ $dbConn = sqlConnect();
 $curWeek = getCurWeek($dbConn);
 $ranks = getRankArray($dbConn, $curWeek);
 $weeksGames = getWeeksGames($dbConn, $curWeek, $ranks);
+$users = getUsers($dbConn);
 pageHeader('Week '. $curWeek->week);
 
 /*header('Content-type: application/json');
@@ -14,11 +15,13 @@ echo json_encode($weeksGames); */
 		<table class="table-sm align-middle">
 			<tr class="lastRow">
 			</tr>
-<?php
-foreach($weeksGames as $game) {
-	printGame($dbConn, $game);
-}
-?>
+			<?php
+			$firstRow = 1;
+			foreach($weeksGames as $game) {
+				printGame($dbConn, $game, $firstRow, $users);
+				$firstRow = 0;
+			}
+			?>
 		</table>
 	</body>
 	<script src="js/picker.js"></script>

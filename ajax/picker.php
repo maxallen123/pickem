@@ -2,6 +2,7 @@
 
 include('../functions.php');
 $dbConn = sqlConnect();
+header('Content-type: application/json');
 if(session_status() == PHP_SESSION_NONE) session_start();
 
 switch($_POST['function']) {
@@ -10,6 +11,9 @@ switch($_POST['function']) {
 		break;
 	case 'updatePicks':
 		updatePicks($dbConn);
+		break;
+	case 'compare':
+		compare($dbConn);
 		break;
 }
 
@@ -48,7 +52,26 @@ function updatePicks($dbConn) {
 	$curWeek = getCurWeek($dbConn);
 	$ranks = getRankArray($dbConn, $curWeek);
 	$weeksGames = getWeeksGames($dbConn, $curWeek, $ranks);
-	header('Content-type: application/json');
 	echo json_encode($weeksGames);
+}
+
+function compare($dbConn) {
+	$userID = $_POST['userID'];
+	$curWeek = getCurWeek($dbConn);
+	$nullRanksArray = array();
+	$weeksGames = getWeeksGames($dbConn, $curWeek, $nullRanksArray);
+	foreach($weeksGames as $game) {
+		$picks[$game->id] = -1;
+	}
+	$query = 'SELECT picks.gameID, picks.teamID FROM picks LEFT JOIN games ON picks.gameID = games.id WHERE picks.userID = ? AND games.weekID = ?';
+	$queryArray = array($userID, $curWeek->weekID);
+	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
+	if(sqlsrv_has_rows($rslt)) {
+		while($pickRow = sqlsrv_fetch_array($rslt)) {
+			$picks[$pickRow['gameID']] = $pickRow['teamID'];
+		}
+	}
+
+	echo json_encode($picks);
 }
 ?>

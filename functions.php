@@ -2,6 +2,7 @@
 
 require('variables.php');
 require('functions/loadFunctions.php');
+require('functions/fetchFunctions.php');
 require('objects.php');
 
 function sqlConnect() {
@@ -32,96 +33,6 @@ function httpRequestOpts() {
 	return stream_context_create($opts);
 }
 
-function getConfs($dbConn) {
-	$query = 'SELECT * FROM conferences';
-	$rslt = sqlsrv_query($dbConn, $query);
-
-	while($conference = sqlsrv_fetch_array($rslt)) {
-		$conferences[$conference['name']] = $conference;
-		$conferences[$conference['id']] = $conference;
-	}
-
-	return $conferences;
-}
-
-function getTeams($dbConn) {
-	$query = 'SELECT * FROM teams ORDER BY school ASC';
-	$rslt = sqlsrv_query($dbConn, $query);
-
-	while($team = sqlsrv_fetch_array($rslt)) {
-		$teams[$team['id']] = $team;
-		$teams[$team['school']] = $team;
-	}
-
-	return $teams;
-}
-
-function getWeekArray($dbConn, $year, $seasonType, $week) {
-	$query = 'SELECT * FROM weeks WHERE year = ? AND week = ? AND seasonType = ?';
-	$weekArray = array($year, $week, $seasonType);
-	$rslt = sqlsrv_query($dbConn, $query, $weekArray);
-	$week = sqlsrv_fetch_array($rslt);
-	return $week;
-}
-
-function getCurWeek($dbConn) {
-	$query = 'SELECT TOP(1) * FROM weeks WHERE endDate > DATEADD(' . $GLOBALS['graceUnit'] . ',' . $GLOBALS['graceOffset'] .', GETDATE()) ORDER BY endDate ASC';
-	$weekArray = sqlsrv_fetch_array(sqlsrv_query($dbConn, $query));
-	return new weekObj($weekArray);
-}
-
-function getWeeksGames($dbConn, $curWeek, $ranks) {
-	$query = 'SELECT 
-				games.id, weekID, games.name,
-				homeID, home.school AS homeSchool, home.mascot AS homeMascot, home.abbreviation as homeAbbr, home.conferenceID AS homeConfID,
-				awayID, away.school AS awaySchool, away.mascot AS awayMascot, away.abbreviation as awayAbbr, away.conferenceID AS awayConfID,
-				startDate,
-				venueID, venue.name AS venueName, venue.city AS city, venue.state AS state, venue.country AS country,
-				completed, homePoints, awayPoints, winnerID, loserID, favID, dogID, closeSpread AS spread, isConference
-				FROM games 
-				LEFT JOIN teams AS home ON games.homeID = home.id  
-				LEFT JOIN teams AS away ON games.awayID = away.id
-				LEFT JOIN venues AS venue ON games.venueID = venue.id
-				WHERE (weekID = ? AND openSpread <= ?) OR forceInclude = 1 ORDER BY startDate ASC';
-	$queryArray = array($curWeek->weekID, $GLOBALS['threshold']);
-	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
-	if(sqlsrv_has_rows($rslt)) {
-		$games = array();
-		while($gameArray = sqlsrv_fetch_array($rslt)) {
-			array_push($games, new gameObj($gameArray, $curWeek, $dbConn, $ranks));
-		}
-	}
-	return $games;
-}
-
-function getLogo($dbConn, $teamId) {
-	// Query
-	$logoQuery = "SELECT 
-					href
-					FROM teamLogos WHERE
-					is_dark = 1 AND teamId = ?";
-	
-	$logo = sqlsrv_query($dbConn, $logoQuery, array($teamId));
-	
-	return sqlsrv_fetch_array($logo)['href'];
-}
-
-function getRankArray($dbConn, $curWeek) {
-	$ranks = array();
-
-	$query = 'SELECT teamID, rank FROM ranks WHERE weekID = ?';
-	$queryArray = array($curWeek->weekID);
-	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
-
-	if(sqlsrv_has_rows($rslt)) {
-		while($row = sqlsrv_fetch_array($rslt)) {
-			$ranks[$row['teamID']] = $row['rank'];
-		}
-	}
-	
-	return $ranks;
-}
-
 function countryName($code) {
 	switch($code) {
 		case 'IE':
@@ -133,7 +44,7 @@ function countryName($code) {
 	}
 }
 
-function printGame($dbConn, $game) {
+function printGame($dbConn, $game, $firstRow, $users) {
 	?>
 	<tr>
 		<th class="header-status" colspan="3" id="header-status-<?= $game->id ?>">
@@ -161,17 +72,38 @@ function printGame($dbConn, $game) {
 			T
 		</th>
 		<th class="header-spread">
-			Spread
+			<?php if($firstRow) { echo 'Spread'; } ?>
 		</th>
 		<th class="header-others">
-			Picked
+			<?php if($firstRow) { echo "Picked"; } ?>
 		</th>
 		<th class="header-blank">
 		</th>
 		<th class="header-pick">
 			<?php
-			if(isset($_SESSION['uid'])) {
+			if(isset($_SESSION['uid']) && $firstRow) {
 				echo 'Your Pick';
+			}
+			?>
+		</th>
+		<th class="header-compare">
+			<?php
+			if(isset($_SESSION['uid']) && $firstRow) {
+				?>
+				Compare to:
+				<select id="selectCompare" class="form-select selectCompare text-center" onChange="compare()">
+					<option val="-1"></option>
+					<?php
+					foreach($users as $user) {
+						if($user->id != $_SESSION['uid']) {
+							?>
+							<option val="<?= $user->id ?>"><?= $user->name ?></option>
+							<?php
+						}
+					}
+					?>
+				</select>
+				<?php
 			}
 			?>
 		</th>
@@ -261,23 +193,35 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 				<?= $game->venue->name ?>
 			</td>
 			<td class="pick" id="tdpick-<?= $game->id ?>" rowspan="4">
-			<?php 
-			if(isset($_SESSION['uid'])) {
+				<?php 
+				if(isset($_SESSION['uid'])) {
+					?>
+						<select class="form-select selectPick" <?php
+						if($game->date <= new DateTime()) {
+							echo "disabled";
+						}
+						?> id="pick-<?= $game->id ?>" onChange="setPick(<?= $game->id ?>)">
+							<option <?php if($game->pick == -1) echo 'selected'?> value="-1"></option>
+							<option <?php if($game->pick == $game->away->id) echo 'selected'?> value="<?= $game->away->id ?>"><?=$game->away->school ?></option>
+							<option <?php if($game->pick == $game->home->id) echo 'selected'?> value="<?= $game->home->id ?>"><?=$game->home->school ?></option>
+						</select>
+					
+					<?php
+				}
 				?>
-				
-					<select class="form-select selectPick" <?php
-					if($game->date <= new DateTime()) {
-						echo "disabled";
-					}
-					?> id="pick-<?= $game->id ?>" onChange="setPick(<?= $game->id ?>)">
-						<option <?php if($game->pick == -1) echo 'selected'?> value="-1"></option>
-						<option <?php if($game->pick == $game->away->id) echo 'selected'?> value="<?= $game->away->id ?>"><?=$game->away->school ?></option>
-						<option <?php if($game->pick == $game->home->id) echo 'selected'?> value="<?= $game->home->id ?>"><?=$game->home->school ?></option>
-					</select>
-				
+			</td>
+			<td class="comparePick" rowspan="4">
 				<?php
-			}
-			?>
+				if(isset($_SESSION['uid'])) {
+					?>
+					<select class="form-select selectPick" disabled id="compare-<?= $game->id ?>">
+						<option selected value="-1"></option>
+						<option value="<?= $game->away->id ?>"><?=$game->away->school ?></option>
+						<option value="<?= $game->home->id ?>"><?=$game->home->school ?></option>
+					</select>
+					<?php
+				}
+				?>
 			</td>
 			<?php
 		} else {

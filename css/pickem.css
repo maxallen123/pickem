@@ -1,26 +1,43 @@
 .header-status {
 	font-variant: small-caps;
 	font-size: 14px;
+	vertical-align: bottom;
 }
 
 .header-lineScore {
 	font-size: 12px;
 	width: 25;
 	text-align: end;
+	vertical-align: bottom;
 }
 
 .header-spread {
 	font-size: 12px;
+	vertical-align: bottom;
 }
 
 .header-others {
 	font-size: 12px;
 	text-align: center;
+	vertical-align: bottom;
 }
 
 .header-pick {
 	font-size: 14px;
 	text-align: center;
+	vertical-align: bottom;
+}
+
+.header-compare {
+	font-size: 12px;
+	text-align: center;
+	vertical-align: bottom;
+}
+
+.selectCompare {
+	font-size: 14px;
+	text-align: center;
+	padding: 0.125rem;
 }
 
 .logo {

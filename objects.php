@@ -198,3 +198,17 @@ class confObj {
 		$this->isFBS = $confArray['isFBS'];
 	}
 }
+
+class userObj {
+	public $id;
+	public $name;
+	public $team;
+	public $email;
+
+	function __construct($userArray) {
+		$this->id = $userArray['id'];
+		$this->name = $userArray['name'];
+		$this->team = $userArray['team'];
+		$this->email = $userArray['email'];
+	}
+}

@@ -13,7 +13,7 @@ function setPick(gameID) {
 		data: {
 			function: 'setPick',
 			gameID: gameID,
-			pick: selectVal,
+			pick: selectVal
 		},
 		datatype: 'json',
 		success:
@@ -57,6 +57,28 @@ function updatePicks() {
 					$(selectID).val(game['pick']);
 					$(othersAway).text(game['away']['picked']);
 					$(othersHome).text(game['home']['picked']);
+				});
+			}
+	});
+}
+
+function compare() {
+	var userID = $('#selectCompare')[0].selectedOptions[0].attributes[0].value;
+	console.log(userID);
+
+	$.ajax({
+		method: 'POST',
+		url: '/ajax/picker.php',
+		data: {
+			function: 'compare',
+			userID: userID
+		},
+		datatype: 'json',
+		success:
+			function (returnVal) {
+				$.each(returnVal, function(gameID, pickID) {
+					compareID = '#compare-' + gameID;
+					$(compareID).val(pickID);
 				});
 			}
 	});

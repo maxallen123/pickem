@@ -11,3 +11,7 @@
 		other session_start() commands to reduce unnecessary calls
 8/24/23
 	- Reduced size of ESPN link
+	- Created new file "fetchFunctions.php", relocated some of the functions
+		there to clean up functions.php
+8/25/23
+	- Added ability to compare against other user's picks
