@@ -122,6 +122,19 @@ function loadRanks($year, $seasonType, $week) {
 	}
 }
 
+function loadGamesCurWeek() {
+	$dbConn = sqlConnect();
+	// Turn off grace offset so we're loading live
+	$GLOBALS['graceOffset'] = 0;
+	$context = httpRequestOpts();
+	$curWeek = getCurWeek($dbConn);
+
+	$games = json_decode(file_get_contents($GLOBALS['scoreboardURL'], false, $context));
+	foreach($games as $game) {
+		loadGameScoreboard($dbConn, $game);
+	}
+}
+
 if(count($argv) > 1) {
 	switch($argv[1]) {
 		case 'loadTeams':
@@ -171,6 +184,10 @@ if(count($argv) > 1) {
 				echo 'Year/SeasonType/Date not set';
 				break;
 			}
+
+		case 'loadGamesCurWeek':
+			loadGamesCurWeek();
+			break;
 	}
 }
 

@@ -4,8 +4,7 @@ require('functions.php');
 if(session_status() == PHP_SESSION_NONE) session_start();
 $dbConn = sqlConnect();
 $curWeek = getCurWeek($dbConn);
-$ranks = getRankArray($dbConn, $curWeek);
-$weeksGames = getWeeksGames($dbConn, $curWeek, $ranks);
+$weeksGames = getWeeksGames($dbConn, $curWeek);
 $users = getUsers($dbConn);
 pageHeader('Week '. $curWeek->week);
 
