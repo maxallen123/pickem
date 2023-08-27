@@ -33,9 +33,9 @@ function getCurWeek($dbConn) {
 function getWeeksGames($dbConn, $curWeek) {
 	$query = 'SELECT 
 				games.id, games.weekID, games.name,
-				homeID, home.school AS homeSchool, home.mascot AS homeMascot, home.abbreviation as homeAbbr, home.conferenceID AS homeConfID, 
+				homeID, home.school AS homeSchool, home.mascot AS homeMascot, home.abbreviation as homeAbbr, home.conferenceID AS homeConfID, home.comedyName AS homeComedyName,
 				homeConference.name AS homeConfName, homeConference.short_name AS homeConfShortName, homeConference.abbreviation AS homeConfAbbr, homeConference.isFBS AS homeConfIsFBS,
-				awayID, away.school AS awaySchool, away.mascot AS awayMascot, away.abbreviation as awayAbbr, away.conferenceID AS awayConfID, 
+				awayID, away.school AS awaySchool, away.mascot AS awayMascot, away.abbreviation as awayAbbr, away.conferenceID AS awayConfID, away.comedyName AS awayComedyName,
 				awayConference.name AS awayConfName, awayConference.short_name AS awayConfShortName, awayConference.abbreviation AS awayConfAbbr, awayConference.isFBS AS awayConfIsFBS,
 				games.startDate,
 				venueID, venue.name AS venueName, venue.city AS city, venue.state AS state, venue.country AS country,

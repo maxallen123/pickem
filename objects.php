@@ -53,7 +53,8 @@ class gameObj {
 			'wins' => $gameArray['homeWins'],
 			'losses' => $gameArray['homeLosses'],
 			'confWins' => $gameArray['homeConfWins'],
-			'confLosses' => $gameArray['homeConfLosses']
+			'confLosses' => $gameArray['homeConfLosses'],
+			'comedyName' => $gameArray['homeComedyName']
 		);
 
 		$awayArray = array(
@@ -71,7 +72,8 @@ class gameObj {
 			'wins' => $gameArray['awayWins'],
 			'losses' => $gameArray['awayLosses'],
 			'confWins' => $gameArray['awayConfWins'],
-			'confLosses' => $gameArray['awayConfLosses']
+			'confLosses' => $gameArray['awayConfLosses'],
+			'comedyName' => $gameArray['awayComedyName']
 		);
 
 		$venueArray = array(
@@ -141,6 +143,9 @@ class teamObj {
 	function __construct($dbConn, $teamArray, $gameArray) {
 		$this->id = $teamArray['id'];
 		$this->school = $teamArray['school'];
+		if($teamArray['comedyName'] != null) {
+			$this->school = $teamArray['comedyName'];
+		}
 		$this->mascot = $teamArray['mascot'];
 		$this->abbr = $teamArray['abbr'];
 		$this->rank = $teamArray['rank'];

@@ -80,14 +80,14 @@ function printGame($dbConn, $game, $firstRow, $users) {
 		</th>
 		<th class="header-blank">
 		</th>
-		<th class="header-pick">
+		<th class="header-pick" colspan="2">
 			<?php
 			if(isset($_SESSION['uid']) && $firstRow) {
 				echo 'Your Pick';
 			}
 			?>
 		</th>
-		<th class="header-compare">
+		<th class="header-compare" colspan="2">
 			<?php
 			if(isset($_SESSION['uid']) && $firstRow) {
 				?>
@@ -211,6 +211,8 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 				}
 				?>
 			</td>
+			<td class="score" id="score-<?= $game->id ?>">
+			</td>
 			<td class="comparePick" rowspan="4">
 				<?php
 				if(isset($_SESSION['uid'])) {
@@ -223,6 +225,8 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 					<?php
 				}
 				?>
+			</td>
+			<td class="score" id="compareScore-<?= $game->id ?>">
 			</td>
 			<?php
 		} else {
