@@ -30,12 +30,14 @@ class gameObj {
 	public $favID;
 	public $dogID;
 	public $spread;
+	public $customName;
 	public $pick = null;
 
 	function __construct($gameArray, $curWeek, $dbConn) {
 		$this->id = $gameArray['id'];
 		$this->week = $curWeek;
 		$this->name = $gameArray['name'];
+		$this->customName = $gameArray['customName'];
 		$this->date = $gameArray['startDate'];
 
 		$homeArray = array(

@@ -32,7 +32,7 @@ function getCurWeek($dbConn) {
 // Returns array of specified week's games 
 function getWeeksGames($dbConn, $curWeek) {
 	$query = 'SELECT 
-				games.id, games.weekID, games.name,
+				games.id, games.weekID, games.name, games.customName,
 				homeID, home.school AS homeSchool, home.mascot AS homeMascot, home.abbreviation as homeAbbr, home.conferenceID AS homeConfID, home.comedyName AS homeComedyName,
 				homeConference.name AS homeConfName, homeConference.short_name AS homeConfShortName, homeConference.abbreviation AS homeConfAbbr, homeConference.isFBS AS homeConfIsFBS,
 				awayID, away.school AS awaySchool, away.mascot AS awayMascot, away.abbreviation as awayAbbr, away.conferenceID AS awayConfID, away.comedyName AS awayComedyName,

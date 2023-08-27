@@ -115,13 +115,25 @@ function printGame($dbConn, $game, $firstRow, $users) {
 	?>
 	<tr class="lastRow" id="lastRow-<?= $game->id ?>">
 		<td class="gameName" id="gameName-<?= $game->id ?>" colspan="9">
-			<?= $game->name ?>
+			<?php
+			if(($game->name != '' && $game->name != null) || ($game->customName != '' && $game->customName != null)) {
+				if($game->name != '' && $game->name != null)  {
+					echo $game->name;
+				}
+				if(($game->name != '' && $game->name != null) && ($game->customName != '' && $game->customName != null)) {
+					echo ' - ';
+				}
+				if($game->customName != '' && $game->customName) {
+					echo $game->customName;
+				}
+			}
+			?>
 		</td>
 		<td class="cell-blank" colspan="4">
 		</td>
 	</tr>
 	<?php
-	if($game->name != '' && $game->name != null) {
+	if(($game->name != '' && $game->name != null) || ($game->customName != '' && $game->customName != null)) {
 		?>
 		<tr class="lastRow"></tr>
 		<?php
