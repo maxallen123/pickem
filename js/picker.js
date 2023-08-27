@@ -1,9 +1,9 @@
 $(document).ready(function() {
 	updatePicks();
-	/*setInterval(() => {
+	setInterval(() => {
 		updatePicks();
 		compare();
-	}, 10000); */
+	}, 10000);
 });
 
 function setPick(gameID) {
