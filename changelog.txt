@@ -20,4 +20,6 @@
 8/26/23
 	- Began making calls to ESPN instead of CFBD
 	- Added getWeeksGameIDs(), improved speed of compare function
-	- test
+	- Fixed issue where player totals weren't updating due to response not 
+		being json
+	- Fixed issue where game score totals wouldn't display if score was 0
