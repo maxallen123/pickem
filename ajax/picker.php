@@ -45,6 +45,7 @@ function setPick($dbConn) {
 		if(!($pickExists) && $pick != -1) {
 			sqlsrv_query($dbConn, $queries['new'], $newUpdtArray);
 		}
+		echo json_encode('success');
 	}
 }
 
@@ -62,7 +63,7 @@ function compare($dbConn) {
 	foreach($weeksGames as $game) {
 		$picks[$game] = -1;
 	}
-	
+
 	$query = 'SELECT picks.gameID, picks.teamID FROM picks LEFT JOIN games ON picks.gameID = games.id WHERE picks.userID = ? AND games.weekID = ?';
 	$queryArray = array($userID, $curWeek->weekID);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
