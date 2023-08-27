@@ -20,3 +20,4 @@
 8/26/23
 	- Began making calls to ESPN instead of CFBD
 	- Added getWeeksGameIDs(), improved speed of compare function
+	- test
