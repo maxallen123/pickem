@@ -172,7 +172,7 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 		?>
 		<td class="total" id="total-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
 			<?php
-			if($teamTotal != null) {
+			if(isset($team->lineScores[1])) {
 				echo $teamTotal;
 			}
 			?>
