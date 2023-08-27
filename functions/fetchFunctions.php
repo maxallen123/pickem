@@ -127,4 +127,24 @@ function getUsers($dbConn) {
 
 	return $users;
 }
+
+// Get Array of game IDs. $all == 1 means all games, 0 means just pick games
+function getWeeksGameIDs($dbConn, $curWeek, $all) {
+	$gameIDArray = array();
+	$query = 'SELECT id FROM games WHERE ';
+	if($all) {
+		$query .= 'weekID = ?';
+		$queryArray = array($curWeek->weekID);
+	} else {
+		$query .= '(weekID = ? AND openSpread <= ?) OR forceInclude = 1';
+		$queryArray = array($curWeek->weekID, $GLOBALS['threshold']);
+	}
+	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
+	if(sqlsrv_has_rows($rslt)) {
+		while($row = sqlsrv_fetch_array($rslt)) {
+			array_push($gameIDArray, $row['id']);
+		}
+	}
+	return $gameIDArray;
+}
 ?>

@@ -3,6 +3,7 @@
 require('variables.php');
 require('functions/loadFunctions.php');
 require('functions/fetchFunctions.php');
+require('functions/insertUpdateFunctions.php');
 require('objects.php');
 
 function sqlConnect() {

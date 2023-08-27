@@ -58,11 +58,11 @@ function updatePicks($dbConn) {
 function compare($dbConn) {
 	$userID = $_POST['userID'];
 	$curWeek = getCurWeek($dbConn);
-	$nullRanksArray = array();
-	$weeksGames = getWeeksGames($dbConn, $curWeek, $nullRanksArray);
+	$weeksGames = getWeeksGameIDs($dbConn, $curWeek, 0);
 	foreach($weeksGames as $game) {
-		$picks[$game->id] = -1;
+		$picks[$game] = -1;
 	}
+	
 	$query = 'SELECT picks.gameID, picks.teamID FROM picks LEFT JOIN games ON picks.gameID = games.id WHERE picks.userID = ? AND games.weekID = ?';
 	$queryArray = array($userID, $curWeek->weekID);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);

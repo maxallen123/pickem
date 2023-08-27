@@ -124,15 +124,22 @@ function loadRanks($year, $seasonType, $week) {
 
 function loadGamesCurWeek() {
 	$dbConn = sqlConnect();
-	// Turn off grace offset so we're loading live
 	$GLOBALS['graceOffset'] = 0;
-	$context = httpRequestOpts();
 	$curWeek = getCurWeek($dbConn);
+	$gameIDArray = getWeeksGameIDs($dbConn, $curWeek, 1);
+	
+	$search = array('$year', '$week', '$seasonType');
+	$replace = array($curWeek->year, $curWeek->week, $curWeek->seasonType + 1);
+	$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
 
-	$games = json_decode(file_get_contents($GLOBALS['scoreboardURL'], false, $context));
+	$scoreboard = json_decode(file_get_contents($searchString));
+	
+	$games = $scoreboard->events;
 	foreach($games as $game) {
-		loadGameScoreboard($dbConn, $game);
+		loadGameScoreboard($dbConn, $game, $curWeek);
 	}
+
+	updateESPNSpread($dbConn, $gameIDArray);
 }
 
 if(count($argv) > 1) {

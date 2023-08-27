@@ -293,7 +293,95 @@ function loadRank($dbConn, $poll, $week, $teams) {
 	}
 }
 
-function loadGameScore($dbConn, $game) {
-	
+function loadGameScoreboard($dbConn, $game, $curWeek) {
+	$game = $game->competitions[0];
+	$gameArray = array();
+	$gameArray['id'] = $game->id;
+	if(isset($game->notes[0]->headline)) {
+		$gameArray['name'] = $game->notes[0]->headline;
+	} else {
+		$gameArray['name'] = null;
+	}
+	$gameArray['startDate'] = str_replace(array('T', 'Z'), ' ', $game->startDate);
+	if($game->competitors[0]->homeAway == 'home') {
+		$homeIndex = 0;
+		$awayIndex = 1;
+	} else {
+		$homeIndex = 1;
+		$awayIndex = 0;
+	}
+	$gameArray['weekID'] = $curWeek->weekID;
+	$gameArray['homeID'] = $game->competitors[$homeIndex]->id;
+	$gameArray['awayID'] = $game->competitors[$awayIndex]->id;
+	$gameArray['venueID'] = $game->venue->id;
+	$gameArray['isNeutral'] = $game->neutralSite;
+	$gameArray['isConference'] = $game->conferenceCompetition;
+	$gameArray['homePoints'] = $game->competitors[$homeIndex]->score;
+	$gameArray['awayPoints'] = $game->competitors[$awayIndex]->score;
+
+	// Code to update for in progress
+	if($game->status->type->id == 3) {
+		$gameArray['completed'] = 1;
+		if($gameArray['homePoints'] > $gameArray['awayPoints']) {
+			$gameArray['winnerID'] = $gameArray['homeID'];
+			$gameArray['loserID'] = $gameArray['awayID'];
+		} else {
+			$gameArray['winnerID'] = $gameArray['awayID'];
+			$gameArray['loserID'] = $gameArray['homeID'];
+		}
+	} else {
+		$gameArray['completed'] = 0;
+		$gameArray['winnerID'] = null;
+		$gameArray['loserID'] = null;
+	}
+	if(isset($game->competitors[$homeIndex]->linescores)) {
+		$homeLinescores = array();
+		$awayLinescores = array();
+		foreach($game->competitors[$homeIndex]->linescores as $period => $lineScore) {
+			$homeLinescores[$period + 1] = $lineScore->value;
+		}
+		foreach($game->competitors[$awayIndex]->linescores as $period => $lineScore) {
+			$awayLinescores[$period + 1] = $lineScore->value;
+		}
+		insertUpdateLinescores($dbConn, $homeLinescores, $gameArray['homeID'], $gameArray['id']);
+		insertUpdateLinescores($dbConn, $awayLinescores, $gameArray['awayID'], $gameArray['id']);
+	}
+	insertUpdateGame($dbConn, $gameArray);
+}
+
+function updateESPNSpread($dbConn, $gameIDArray) {
+	$search = '$gameID';
+	foreach($gameIDArray as $gameID) {
+		$replace = $gameID;
+		$searchString = str_replace($search, $replace, $GLOBALS['espnGameURL']);
+		$game = json_decode(file_get_contents($searchString));
+		if(isset($game->pickcenter[0])) {
+			$lines = 0;
+			$spreadSum = 0;
+			foreach($game->pickcenter as $line) {
+				$lines++;
+				$spreadSum += $line->spread;
+			}
+			$spread = round(($spreadSum * 2) / $lines) / 2;
+			$query = 'SELECT openSpread, homeID, awayID FROM games WHERE id = ?';
+			$queryArray = array($gameID);
+			$rslt = sqlsrv_query($dbConn, $query, $queryArray);
+			$row = sqlsrv_fetch_array($rslt);
+			$openSpread = $row['openSpread'];
+			if($openSpread == null) {
+				$openSpread = abs($spread);
+			}
+			if($spread <= 0) {
+				$favID = $row['homeID'];
+				$dogID = $row['awayID'];
+			} else {
+				$favID = $row['awayID'];
+				$dogID = $row['homeID'];
+			}
+			$query = 'UPDATE games SET openSpread = ?, closeSpread = ?, favID = ?, dogID = ? WHERE id = ?';
+			$queryArray = array($openSpread, abs($spread), $favID, $dogID, $gameID);
+			sqlsrv_query($dbConn, $query, $queryArray);
+		}
+	}
 }
 ?>
