@@ -7,6 +7,12 @@ $curWeek = getCurWeek($dbConn);
 $weeksGames = getWeeksGames($dbConn, $curWeek);
 $users = getUsers($dbConn);
 pageHeader('Week '. $curWeek->week);
+if(isset($_SESSION['uid'])) {
+	$GLOBAL['userScore'] = getUserScore($dbConn, $_SESSION['uid']);
+	?>
+	<input type='hidden' id='userPreweekScore' value='<?= $GLOBAL['userScore'] ?>'>
+	<?php
+}
 
 /*header('Content-type: application/json');
 echo json_encode($weeksGames); */

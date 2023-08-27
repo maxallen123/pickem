@@ -64,15 +64,22 @@ function compare($dbConn) {
 		$picks[$game] = -1;
 	}
 
-	$query = 'SELECT picks.gameID, picks.teamID FROM picks LEFT JOIN games ON picks.gameID = games.id WHERE picks.userID = ? AND games.weekID = ?';
-	$queryArray = array($userID, $curWeek->weekID);
+	$query = 'SELECT games.id, picks.teamID, games.winnerID
+		FROM games 
+		LEFT JOIN picks ON picks.gameID = games.id AND picks.userID = ?
+		WHERE (weekID = ? AND openSpread <= ?) OR forceInclude = 1 ORDER by startDate ASC';
+	$queryArray = array($userID, $curWeek->weekID, $GLOBALS['threshold']);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
+	$picks = array();
 	if(sqlsrv_has_rows($rslt)) {
 		while($pickRow = sqlsrv_fetch_array($rslt)) {
-			$picks[$pickRow['gameID']] = $pickRow['teamID'];
+			array_push($picks, new othersPickObj($pickRow));
 		}
 	}
 
-	echo json_encode($picks);
+	$returnVal['picks'] = $picks;
+	$returnVal['score'] = getUserScore($dbConn, $userID);
+	
+	echo json_encode($returnVal);
 }
 ?>

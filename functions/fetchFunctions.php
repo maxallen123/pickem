@@ -147,4 +147,13 @@ function getWeeksGameIDs($dbConn, $curWeek, $all) {
 	}
 	return $gameIDArray;
 }
+
+function getUserScore($dbConn, $userID) {
+	$query = 'SELECT COUNT(teamID) AS score FROM picks 
+		LEFT JOIN games ON picks.gameID = games.id 
+		LEFT JOIN weeks ON weeks.id = games.weekID
+		WHERE games.winnerID = picks.teamID AND weeks.endDate < DATEADD(' . $GLOBALS['graceUnit'] . ',' . $GLOBALS['graceOffset'] .', GETDATE()) AND picks.userID = ?';
+	$queryArray = array($userID);
+	return sqlsrv_fetch_array(sqlsrv_query($dbConn, $query, $queryArray))['score'];
+}
 ?>

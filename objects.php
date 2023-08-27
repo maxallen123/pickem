@@ -220,3 +220,18 @@ class userObj {
 		$this->email = $userArray['email'];
 	}
 }
+
+class othersPickObj {
+	public $gameID;
+	public $pickID;
+	public $winnerID;
+
+	function __construct($pickArray) {
+		$this->gameID = $pickArray['id'];
+		$this->pickID = $pickArray['teamID'];
+		if($this->pickID == null) {
+			$this->pickID = -1;
+		}
+		$this->winnerID = $pickArray['winnerID'];
+	}
+}
