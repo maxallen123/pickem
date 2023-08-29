@@ -93,14 +93,19 @@ function compare() {
 					compareID = '#compare-' + pick['gameID'];
 					compareScore = '#compareScore-' + pick['gameID'];
 					$(compareID).val(pick['pickID']);
-					if(pick['winnerID'] != null) {
-						if(pick['winnerID'] == pick['pickID']) {
-							$(compareScore).text(++curScore);
-							$(compareScore).addClass('scoreWinner')
-						} else {
-							$(compareScore).text(curScore);
-							$(compareScore).removeClass('scoreWinner');
+					if(userID != -1) {
+						if(pick['winnerID'] != null) {
+							if(pick['winnerID'] == pick['pickID']) {
+								$(compareScore).text(++curScore);
+								$(compareScore).addClass('scoreWinner')
+							} else {
+								$(compareScore).text(curScore);
+								$(compareScore).removeClass('scoreWinner');
+							}
 						}
+					} else {
+						$(compareScore).text('');
+						$(compareScore).removeClass('scoreWinner');
 					}
 				});
 			}
