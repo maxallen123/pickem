@@ -72,11 +72,11 @@ function printGame($dbConn, $game, $firstRow, $users) {
 		<th class="header-lineScore">
 			T
 		</th>
-		<th class="header-spread">
-			<?php if($firstRow) { echo 'Spread'; } ?>
-		</th>
 		<th class="header-others">
 			<?php if($firstRow) { echo "Picked"; } ?>
+		</th>
+		<th class="header-spread">
+			<?php if($firstRow) { echo 'Spread'; } ?>
 		</th>
 		<th class="header-blank">
 		</th>
@@ -201,17 +201,27 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 			}
 			?>
 		</td>
-		<td class="spread <?= $winnerClass ?>" id="spread-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
-			<?php
-			if($team->id == $game->favID) {
-				echo '-' . number_format($game->spread, 1);
-			}
-			?>
-		</td>
 		<td class="othersPicks <?= $winnerClass ?> rounded-end-4" id="others-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
 			<?= $team->picked ?>
 		</td>
 		<?php
+		if($game->spread != 0) {
+			?>
+			<td class="spread" id="spread-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
+				<?php
+				if($team->id == $game->favID) {
+					echo '-' . number_format($game->spread, 1);
+				}
+				?>
+			</td>
+			<?php
+		} else if($homeAway == 'away') {
+			?>
+			<td class="spread" id="spread-<?= $homeAway . '-' . $game->id ?>" rowspan="4">
+				EVEN
+			</td>
+			<?php
+		}
 		if($homeAway == 'away') {
 			?>
 			<td class="venueName" id="venueName-<?= $game->id ?>">

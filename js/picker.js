@@ -69,7 +69,6 @@ function winnerCSS(game) {
 	$('#lineScore-' + homeAway + '-4-' + game['id']).addClass('winner-' + game[homeAway]['id']);
 	$('#lineScore-' + homeAway + '-5-' + game['id']).addClass('winner-' + game[homeAway]['id']);
 	$('#total-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-	$('#spread-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
 	$('#others-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
 }
 

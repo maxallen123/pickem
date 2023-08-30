@@ -28,3 +28,9 @@
 	- Added score column & live score
 8/28/23
 	- Fixed bug where it showed score totals for comparing against no user
+8/29/23
+	- Fixed colors for all FBS teams
+	- Added highlighting for winners with team color.
+	- Updated JS to show live scores for games
+	- Fixed bugs in new code, cleaned up JS. Now loading images from DB instead of ESPN
+8/30/23
