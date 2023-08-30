@@ -32,6 +32,8 @@ class gameObj {
 	public $spread;
 	public $customName;
 	public $pick = null;
+	public $multiplier;
+	public $jokeGame;
 
 	function __construct($gameArray, $curWeek, $dbConn) {
 		$this->id = $gameArray['id'];
@@ -125,6 +127,8 @@ class gameObj {
 				$this->pick = -1;
 			}
 		}
+		$this->multiplier = $gameArray['multiplier'];
+		$this->jokeGame = $gameArray['jokeGame'];
 	}
 }
 
@@ -225,6 +229,8 @@ class othersPickObj {
 	public $gameID;
 	public $pickID;
 	public $winnerID;
+	public $multiplier;
+	public $jokeGame;
 
 	function __construct($pickArray) {
 		$this->gameID = $pickArray['id'];
@@ -233,5 +239,7 @@ class othersPickObj {
 			$this->pickID = -1;
 		}
 		$this->winnerID = $pickArray['winnerID'];
+		$this->multiplier = $pickArray['multiplier'];
+		$this->jokeGame = $pickArray['jokeGame'];
 	}
 }

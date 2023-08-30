@@ -64,7 +64,7 @@ function compare($dbConn) {
 		$picks[$game] = -1;
 	}
 
-	$query = 'SELECT games.id, picks.teamID, games.winnerID
+	$query = 'SELECT games.id, picks.teamID, games.winnerID, games.multiplier, games.jokeGame
 		FROM games 
 		LEFT JOIN picks ON picks.gameID = games.id AND picks.userID = ?
 		WHERE (weekID = ? AND openSpread <= ?) OR forceInclude = 1 ORDER by startDate ASC';
@@ -78,7 +78,7 @@ function compare($dbConn) {
 	}
 
 	$returnVal['picks'] = $picks;
-	$returnVal['score'] = getUserScore($dbConn, $userID);
+	$returnVal['score'] = getUserScore($dbConn, $userID, $curWeek);
 	
 	echo json_encode($returnVal);
 }

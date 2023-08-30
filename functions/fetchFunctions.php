@@ -43,7 +43,7 @@ function getCurWeek($dbConn) {
 // Returns array of specified week's games 
 function getWeeksGames($dbConn, $curWeek) {
 	$query = 'SELECT 
-				games.id, games.weekID, games.name, games.customName,
+				games.id, games.weekID, games.name, games.customName, games.multiplier, games.jokeGame,
 				homeID, home.school AS homeSchool, home.mascot AS homeMascot, home.abbreviation as homeAbbr, home.conferenceID AS homeConfID, home.comedyName AS homeComedyName,
 				homeConference.name AS homeConfName, homeConference.short_name AS homeConfShortName, homeConference.abbreviation AS homeConfAbbr, homeConference.isFBS AS homeConfIsFBS,
 				awayID, away.school AS awaySchool, away.mascot AS awayMascot, away.abbreviation as awayAbbr, away.conferenceID AS awayConfID, away.comedyName AS awayComedyName,
@@ -148,7 +148,7 @@ function getWeeksGameIDs($dbConn, $curWeek, $all) {
 		$queryArray = array($curWeek->weekID);
 	} else {
 		$query .= '(weekID = ? AND openSpread <= ?) OR (forceInclude = 1 AND weekID = ?)';
-		$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->weekID);
+		$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->id);
 	}
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	if(sqlsrv_has_rows($rslt)) {
@@ -159,12 +159,24 @@ function getWeeksGameIDs($dbConn, $curWeek, $all) {
 	return $gameIDArray;
 }
 
-function getUserScore($dbConn, $userID) {
-	$query = 'SELECT COUNT(teamID) AS score FROM picks 
-		LEFT JOIN games ON picks.gameID = games.id 
-		LEFT JOIN weeks ON weeks.id = games.weekID
-		WHERE games.winnerID = picks.teamID AND weeks.endDate < DATEADD(' . $GLOBALS['graceUnit'] . ',' . $GLOBALS['graceOffset'] .', GETDATE()) AND picks.userID = ?';
-	$queryArray = array($userID);
-	return sqlsrv_fetch_array(sqlsrv_query($dbConn, $query, $queryArray))['score'];
+function getUserScore($dbConn, $userID, $curWeek) {
+	$query = 'SELECT SUM(multiplier) AS score 
+		FROM picks 
+			LEFT JOIN games ON picks.gameID = games.id 
+			LEFT JOIN weeks ON weeks.id = games.weekID
+		WHERE (games.winnerID = picks.teamID 
+			AND weeks.endDate < DATEADD(' . $GLOBALS['graceUnit'] . ',' . $GLOBALS['graceOffset'] .', GETDATE()) 
+			AND picks.userID = ?
+			AND weeks.year = ?)
+		OR (games.jokeGame = 1
+			AND picks.userID = ?
+			AND weeks.year = ?
+			AND weeks.endDate < DATEADD(' . $GLOBALS['graceUnit'] . ',' . $GLOBALS['graceOffset'] .', GETDATE()))';
+	$queryArray = array($userID, $curWeek->year, $userID, $curWeek->year);
+	$score = sqlsrv_fetch_array(sqlsrv_query($dbConn, $query, $queryArray))['score'];
+	if($score == null) {
+		$score = 0;
+	}
+	return $score;
 }
 ?>

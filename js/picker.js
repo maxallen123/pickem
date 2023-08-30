@@ -37,7 +37,7 @@ function updatePicks() {
 		datatype: 'json',
 		success:
 			function (picks) {
-				var ourScore = $('#userPreweekScore').val();
+				var ourScore = parseInt($('#userPreweekScore').val());
 				$.each(picks, function(index, game) {
 					var date = new Date(game['date']['date'] + 'Z');
 					var curDate = new Date();
@@ -47,6 +47,7 @@ function updatePicks() {
 					var othersHome = '#others-home-' + game['id'];
 					var score = '#score-' + game['id'];
 
+					// Update game linescores
 					var totalScore = 0;
 					var otScore = 0;
 					var ot = 0;
@@ -84,6 +85,7 @@ function updatePicks() {
 					}
 					$('#total-away-' + game['id']).text(totalScore);
 
+					// Apply CSS if game is over
 					if(game['completed']) {
 						if(game['winnerID'] == game['home']['id']) {
 							var homeAway = 'home';
@@ -106,10 +108,10 @@ function updatePicks() {
 					}
 
 					// Update Time/Finished fields
-					if(game['completed'] == 1) {
+					if(game['completed']) {
 						$(statusHeader).text('Final');
-						if(game['pick'] == game['winnerID']) {
-							$(score).text(++ourScore);
+						if(game['pick'] == game['winnerID'] || (game['jokeGame'] == 1 && game['pick'] != -1)) {
+							$(score).text(ourScore += game['multiplier']);
 							$(score).addClass('scoreWinner');
 						} else {
 							$(score).text(ourScore);
@@ -154,8 +156,8 @@ function compare() {
 						$(compareID).val(pick['pickID']);
 						if(userID != -1) {
 							if(pick['winnerID'] != null) {
-								if(pick['winnerID'] == pick['pickID']) {
-									$(compareScore).text(++curScore);
+								if(pick['winnerID'] == pick['pickID'] || (pick['jokeGame'] && pick['pickID'] != -1)) {
+									$(compareScore).text(curScore += pick['multiplier']);
 									$(compareScore).addClass('scoreWinner')
 								} else {
 									$(compareScore).text(curScore);

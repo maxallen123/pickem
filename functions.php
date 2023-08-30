@@ -238,7 +238,7 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 			<td class="score
 				<?php
 				if(isset($_SESSION['uid']) && $game->completed) {
-					if($game->winnerID == $game->pick) {
+					if($game->winnerID == $game->pick || ($game->jokeGame && $game->pick != -1)) {
 						echo ' scoreWinner';
 					}
 				}
@@ -246,8 +246,8 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 				" id="score-<?= $game->id ?>" rowspan="4">
 				<?php
 				if($game->completed && isset($_SESSION['uid'])) {
-					if($game->winnerID == $game->pick) {
-						echo ++$GLOBAL['userScore'];
+					if($game->winnerID == $game->pick || ($game->jokeGame && $game->pick != -1)) {
+						echo $GLOBAL['userScore'] += $game->multiplier;
 					} else {
 						if($GLOBAL['userScore'] == 0) {
 							echo "0";
