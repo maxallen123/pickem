@@ -51,7 +51,9 @@ function updatePicks() {
 					var totalScore = 0;
 					var otScore = 0;
 					var ot = 0;
+					var gameStarted = 0;
 					$.each(game['home']['lineScores'], function(period, periodScore) {
+						gameStarted = 1;
 						totalScore += periodScore;
 						if(period <= 4) {
 							var boxScore = '#lineScore-home-' + period + '-' + game['id'];
@@ -65,7 +67,9 @@ function updatePicks() {
 						$('#otScore-' + game['id']).text('OT(' + ot + ')');
 						$('#lineScore-home-5-' + game['id']).text(otScore);
 					}
-					$('total-home-' + game['id']).text(totalScore);
+					if(gameStarted) {
+						$('#total-home-' + game['id']).text(totalScore);
+					}
 
 					var totalScore = 0;
 					var otScore = 0;
@@ -83,8 +87,10 @@ function updatePicks() {
 					if(ot > 0) {
 						$('#lineScore-away-5-' + game['id']).text(otScore);
 					}
-					$('#total-away-' + game['id']).text(totalScore);
-
+					if(gameStarted) {
+						$('#total-away-' + game['id']).text(totalScore);
+					}
+					
 					// Apply CSS if game is over
 					if(game['completed']) {
 						if(game['winnerID'] == game['home']['id']) {
