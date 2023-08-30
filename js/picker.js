@@ -111,7 +111,7 @@ function updatePicks() {
 					if(game['completed']) {
 						$(statusHeader).text('Final');
 						if(game['pick'] != null) {
-							if(game['pick'] == game['winnerID'] || (game['jokeGame'] == 1 && game['pick'] != -1) {
+							if(game['pick'] == game['winnerID'] || (game['jokeGame'] == 1 && game['pick'] != -1)) {
 								$(score).text(ourScore += game['multiplier']);
 								$(score).addClass('scoreWinner');
 							} else {
