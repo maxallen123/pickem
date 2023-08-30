@@ -156,7 +156,7 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 	?>
 	<tr>
 		<td rowspan="2" class="logo <?= $winnerClass ?> rounded-start-4" id="logoCell-<?= $homeAway. '-' . $game->id ?>">
-			<img height="35" width="35" src=<?= getLogo($dbConn, $team->id) ?> id="logo-<?= $homeAway . '-' . $game->id ?>">
+			<img height="35" width="35" src="<?= getLogo($dbConn, $team->id) ?>" id="logo-<?= $homeAway . '-' . $game->id ?>">
 		</td>
 		<td class="rank <?= $winnerClass ?>" id="rank-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
 			<?php

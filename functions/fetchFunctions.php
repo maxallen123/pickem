@@ -87,13 +87,13 @@ function getWeeksGames($dbConn, $curWeek) {
 function getLogo($dbConn, $teamId) {
 	// Query
 	$logoQuery = "SELECT 
-					href
+					img
 					FROM teamLogos WHERE
 					is_dark = 1 AND teamId = ?";
 	
 	$logo = sqlsrv_query($dbConn, $logoQuery, array($teamId));
 	
-	return sqlsrv_fetch_array($logo)['href'];
+	return sqlsrv_fetch_array($logo)['img'];
 }
 
 // Get array with AP/CFP ranks of teams for specified week
