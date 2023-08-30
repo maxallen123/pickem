@@ -62,7 +62,7 @@ function printGame($dbConn, $game, $firstRow, $users) {
 		<th class="header-lineScore">
 			4
 		</th>
-		<th class="header-lineScore">
+		<th class="header-lineScore" id="otScore-<?= $game->id ?>">
 			<?php
 				if(count($game->away->lineScores) > 4) {
 					echo 'OT(' . count($game->away->lineScores) - 4 . ')';
@@ -148,26 +148,31 @@ function printGame($dbConn, $game, $firstRow, $users) {
 }
 
 function printRowTeam($dbConn, $team, $game, $homeAway) {
+	if($game->winnerID == $team->id && $game->completed) {
+		$winnerClass = 'winner-' . $team->id;
+	} else {
+		$winnerClass = '';
+	}
 	?>
 	<tr>
-		<td rowspan="2" class="logo">
+		<td rowspan="2" class="logo <?= $winnerClass ?> rounded-start-4" id="logoCell-<?= $homeAway. '-' . $game->id ?>">
 			<img height="35" width="35" src=<?= getLogo($dbConn, $team->id) ?> id="logo-<?= $homeAway . '-' . $game->id ?>">
 		</td>
-		<td class="rank" id="rank-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
+		<td class="rank <?= $winnerClass ?>" id="rank-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
 			<?php
 			if($team->rank != null) {
 				echo $team->rank;
 			}
 			?>
 		</td>
-		<td class="teamName" id="teamName-<?= $homeAway . '-' . $game->id ?>">
-			<a class="link-underline link-underline-opacity-0 link-underline-opacity-100-hover link-light" href="https://www.espn.com/college-football/team/_/id/<?= $team->id ?>" target="_blank"><?= $team->school ?></a>
+		<td class="teamName <?= $winnerClass ?>" id="teamName-<?= $homeAway . '-' . $game->id ?>">
+			<a class="link-underline link-underline-opacity-0 link-underline-opacity-100-hover link-light <?= $winnerClass ?>" href="https://www.espn.com/college-football/team/_/id/<?= $team->id ?>" target="_blank" id='schoolLink-<?= $homeAway . '-' . $game->id ?>'><?= $team->school ?></a>
 		</td>
 		<?php
 		$teamTotal = null;
 		for($period = 1; $period <= 5; $period++) {
 			?>
-			<td class="lineScore" id="lineScore-<?= $homeAway . '-' . $period . '-' . $game->id ?>" rowspan="2">
+			<td class="lineScore <?= $winnerClass ?>" id="lineScore-<?= $homeAway . '-' . $period . '-' . $game->id ?>" rowspan="2">
 				<?php
 				if($period != 5) {
 					if(isset($team->lineScores[$period])) {
@@ -189,21 +194,21 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 			<?php
 		}
 		?>
-		<td class="total" id="total-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
+		<td class="total <?= $winnerClass ?>" id="total-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
 			<?php
 			if(isset($team->lineScores[1])) {
 				echo $teamTotal;
 			}
 			?>
 		</td>
-		<td class="spread" id="spread-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
+		<td class="spread <?= $winnerClass ?>" id="spread-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
 			<?php
 			if($team->id == $game->favID) {
 				echo '-' . number_format($game->spread, 1);
 			}
 			?>
 		</td>
-		<td class="othersPicks" id="others-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
+		<td class="othersPicks <?= $winnerClass ?> rounded-end-4" id="others-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
 			<?= $team->picked ?>
 		</td>
 		<?php
@@ -279,7 +284,7 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 		?>
 	</tr>
 	<tr>
-		<td class="record" id="record-<?= $homeAway . '-' . $game->id ?>">
+		<td class="record <?= $winnerClass ?>" id="record-<?= $homeAway . '-' . $game->id ?>">
 			<?php
 				echo '(' . $team->wins . '-' . $team->losses;
 				if($team->conf->id != 18 && $team->conf->id != 32) {
@@ -322,6 +327,7 @@ function pageHeader($pageTitle) {
 			<title><?= $GLOBALS['name'] ?> Pick 'Em - <?= $pageTitle ?></title>
 			<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
 			<link href="css/pickem.css" rel="stylesheet">
+			<link href="css/schoolColors.php" rel="stylesheet">
 			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>			<script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
 			<script src="js/functions.js"></script>
 		</head>

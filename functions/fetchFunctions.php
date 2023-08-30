@@ -13,6 +13,17 @@ function getTeams($dbConn) {
 	return $teams;
 }
 
+function getTeamsWithLogo($dbConn) {
+	$query = 'SELECT id, school, mascot, abbreviation, conferenceID, isFBS, color, alternateColor, lightLogos.href AS lightLogo, darkLogos.href AS darkLogo FROM teams LEFT JOIN teamLogos AS lightLogos ON teams.id = lightLogos.teamId AND lightLogos.is_dark = 0 LEFT JOIN teamLogos AS darkLogos ON teams.id = darkLogos.teamId AND darkLogos.is_dark = 1 ORDER BY school ASC';
+	$rslt = sqlsrv_query($dbConn, $query);
+
+	while($team = sqlsrv_fetch_array($rslt)) {
+		$teams[$team['id']] = $team;
+	}
+
+	return $teams;
+}
+
 // Returns array of specified week
 function getWeekArray($dbConn, $year, $seasonType, $week) {
 	$query = 'SELECT * FROM weeks WHERE year = ? AND week = ? AND seasonType = ?';
@@ -60,8 +71,8 @@ function getWeeksGames($dbConn, $curWeek) {
 				LEFT JOIN ranks AS awayRanks ON awayRanks.weekID = games.weekID AND awayRanks.teamID = games.awayID
 				LEFT JOIN venues AS venue ON games.venueID = venue.id
 				LEFT JOIN weeks AS weekPresent ON games.weekID = weekPresent.id
-				WHERE (games.weekID = ? AND openSpread <= ?) OR forceInclude = 1 ORDER BY startDate ASC';
-	$queryArray = array($curWeek->weekID, $GLOBALS['threshold']);
+				WHERE (games.weekID = ? AND openSpread <= ?) OR (games.weekID = ? AND forceInclude = 1) ORDER BY startDate ASC';
+	$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->weekID);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	if(sqlsrv_has_rows($rslt)) {
 		$games = array();
@@ -136,8 +147,8 @@ function getWeeksGameIDs($dbConn, $curWeek, $all) {
 		$query .= 'weekID = ?';
 		$queryArray = array($curWeek->weekID);
 	} else {
-		$query .= '(weekID = ? AND openSpread <= ?) OR forceInclude = 1';
-		$queryArray = array($curWeek->weekID, $GLOBALS['threshold']);
+		$query .= '(weekID = ? AND openSpread <= ?) OR (forceInclude = 1 AND weekID = ?)';
+		$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->weekID);
 	}
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	if(sqlsrv_has_rows($rslt)) {
