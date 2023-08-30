@@ -110,12 +110,14 @@ function updatePicks() {
 					// Update Time/Finished fields
 					if(game['completed']) {
 						$(statusHeader).text('Final');
-						if(game['pick'] == game['winnerID'] || (game['jokeGame'] == 1 && game['pick'] != -1)) {
-							$(score).text(ourScore += game['multiplier']);
-							$(score).addClass('scoreWinner');
-						} else {
-							$(score).text(ourScore);
-							$(score).removeClass('scoreWinner');
+						if(game['pick'] != null) {
+							if(game['pick'] == game['winnerID'] || (game['jokeGame'] == 1 && game['pick'] != -1) {
+								$(score).text(ourScore += game['multiplier']);
+								$(score).addClass('scoreWinner');
+							} else {
+								$(score).text(ourScore);
+								$(score).removeClass('scoreWinner');
+							}
 						}
 					} else {
 						$(statusHeader).text(formattedDateTime(date));
