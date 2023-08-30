@@ -27,6 +27,52 @@ function setPick(gameID) {
 	});
 }
 
+function gameLineScores(game, homeAway) {
+	var totalScore = 0;
+	var otScore = 0;
+	var ot = 0;
+	var gameStarted = 0;
+	$.each(game[homeAway]['lineScores'], function(period, periodScore) {
+		gameStarted = 1;
+		totalScore += periodScore;
+		if(period <= 4) {
+			var boxScore = '#lineScore-' + homeAway + '-' + period + '-' + game['id'];
+			$(boxScore).text(periodScore);
+		} else {
+			ot++;
+			otScore += periodScore;
+		}
+	});
+	if(ot > 0) {
+		$('#otScore-' + game['id']).text('OT(' + ot + ')');
+		$('#lineScore-' + homeAway + '-5-' + game['id']).text(otScore);
+	}
+	if(gameStarted) {
+		$('#total-' + homeAway + '-' + game['id']).text(totalScore);
+	}
+}
+
+function winnerCSS(game) {
+	if(game['winnerID'] == game['home']['id']) {
+		var homeAway = 'home';
+	} else {
+		var homeAway = 'away';
+	}
+	$('#logoCell-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+	$('#rank-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+	$('#teamName-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+	$('#schoolLink-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+	$('#record-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+	$('#lineScore-' + homeAway + '-1-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+	$('#lineScore-' + homeAway + '-2-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+	$('#lineScore-' + homeAway + '-3-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+	$('#lineScore-' + homeAway + '-4-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+	$('#lineScore-' + homeAway + '-5-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+	$('#total-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+	$('#spread-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+	$('#others-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+}
+
 function updatePicks() {
 	$.ajax({
 		method: 'POST',
@@ -48,69 +94,12 @@ function updatePicks() {
 					var score = '#score-' + game['id'];
 
 					// Update game linescores
-					var totalScore = 0;
-					var otScore = 0;
-					var ot = 0;
-					var gameStarted = 0;
-					$.each(game['home']['lineScores'], function(period, periodScore) {
-						gameStarted = 1;
-						totalScore += periodScore;
-						if(period <= 4) {
-							var boxScore = '#lineScore-home-' + period + '-' + game['id'];
-							$(boxScore).text(periodScore);
-						} else {
-							ot++;
-							otScore += periodScore;
-						}
-					});
-					if(ot > 0) {
-						$('#otScore-' + game['id']).text('OT(' + ot + ')');
-						$('#lineScore-home-5-' + game['id']).text(otScore);
-					}
-					if(gameStarted) {
-						$('#total-home-' + game['id']).text(totalScore);
-					}
+					gameLineScores(game, 'home');
+					gameLineScores(game, 'away');
 
-					var totalScore = 0;
-					var otScore = 0;
-					var ot = 0;
-					$.each(game['away']['lineScores'], function(period, periodScore) {
-						totalScore += periodScore;
-						if(period <= 4) {
-							var boxScore = '#lineScore-away-' + period + '-' + game['id'];
-							$(boxScore).text(periodScore);
-						} else {
-							ot++;
-							otScore += periodScore;
-						}
-					});
-					if(ot > 0) {
-						$('#lineScore-away-5-' + game['id']).text(otScore);
-					}
-					if(gameStarted) {
-						$('#total-away-' + game['id']).text(totalScore);
-					}
-					
 					// Apply CSS if game is over
 					if(game['completed']) {
-						if(game['winnerID'] == game['home']['id']) {
-							var homeAway = 'home';
-						} else {
-							var homeAway = 'away';
-						}
-						$('#logoCell-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-						$('#rank-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-						$('#teamName-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-						$('#schoolLink-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-						$('#record-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-						$('#lineScore-' + homeAway + '-1-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-						$('#lineScore-' + homeAway + '-2-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-						$('#lineScore-' + homeAway + '-3-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-						$('#lineScore-' + homeAway + '-4-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-						$('#lineScore-' + homeAway + '-5-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-						$('#total-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-						$('#spread-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-						$('#others-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+						winnerCSS(game);
 					}
 
 					// Update Time/Finished fields
