@@ -129,3 +129,8 @@
 .pickEm {
 	font-variant: small-caps;
 }
+
+.loserSelect {
+	background: var(--bs-secondary-bg-subtle) !important;
+	color: #41484f !important;
+}

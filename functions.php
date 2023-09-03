@@ -235,6 +235,8 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 						if($game->completed) {
 							if($game->winnerID == $game->pick || ($game->jokeGame && $game->pick != -1)) {
 								echo 'winner-' . $game->pick;
+							} else {
+								echo 'loserSelect';
 							}
 						}
 						?>

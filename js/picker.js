@@ -106,11 +106,13 @@ function updatePicks() {
 						$(statusHeader).text('Final');
 						if(game['pick'] != null) {
 							if(game['pick'] == game['winnerID'] || (game['jokeGame'] == 1 && game['pick'] != -1)) {
+								$(selectID).addClass('winner-' + game['pick']);
 								$(score).text(ourScore += game['multiplier']);
 								$(score).addClass('scoreWinner');
 							} else {
 								$(score).text(ourScore);
 								$(score).removeClass('scoreWinner');
+								$(selectID).addClass('loserSelect');
 							}
 						}
 					} else {
@@ -153,16 +155,21 @@ function compare() {
 						if(userID != -1) {
 							if(pick['winnerID'] != null) {
 								if(pick['winnerID'] == pick['pickID'] || (pick['jokeGame'] && pick['pickID'] != -1)) {
+									$(compareID).addClass('winner-' + pick['pickID']);
 									$(compareScore).text(curScore += pick['multiplier']);
 									$(compareScore).addClass('scoreWinner')
 								} else {
 									$(compareScore).text(curScore);
 									$(compareScore).removeClass('scoreWinner');
+									$(compareID).addClass('loserSelect');
 								}
 							}
 						} else {
 							$(compareScore).text('');
 							$(compareScore).removeClass('scoreWinner');
+							$(compareID).removeClass('loserSelect');
+							$(compareID).removeClass('winner-' + pick['winnerID']);
+							$(compareID).removeClass('winner-' + pick['loserID']);
 						}
 					});
 				}
