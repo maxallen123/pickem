@@ -67,7 +67,7 @@ function setLoadGameQueries() {
 							WHERE
 							id = ?';
 	$queries['updateSpread'] = 'UPDATE games SET
-							favID = ?, dogID = ?, openSpread = ?, closeSpread = ?
+							favID = ?, dogID = ?, openSpread = ?, openSpreadTime = ?, closeSpread = ?
 							WHERE
 							id = ?';
 	$queries['checkLineScore'] = 'SELECT * FROM gameLineScores

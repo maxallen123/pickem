@@ -225,11 +225,13 @@ function updateSpread($dbConn, $game, $queries) {
 
 	if($gameSQL['openSpread'] == null) {
 		$openSpread = $spreadAvg;
+		$openSpreadTime = $gameSQL['openSpreadTime'];
 	} else { 
 		$openSpread = $gameSQL['openSpread'];
+		$openSpreadTime = new DateTime();
 	}
 
-	$updateSpread = array($favID, $dogID, $openSpread, $spreadAvg, $game->id);
+	$updateSpread = array($favID, $dogID, $openSpread, $openSpreadTime, $spreadAvg, $game->id);
 	sqlsrv_query($dbConn, $queries['updateSpread'], $updateSpread);
 }
 
@@ -354,22 +356,31 @@ function updateESPNSpread($dbConn, $gameIDArray) {
 	foreach($gameIDArray as $gameID) {
 		$replace = $gameID;
 		$searchString = str_replace($search, $replace, $GLOBALS['espnGameURL']);
-		$game = json_decode(file_get_contents($searchString));
+		
+		do{
+			$gameStr = @file_get_contents($searchString);
+		} while(strlen($gameStr) < 1000);
+		
+		$game = json_decode($gameStr);
 		if(isset($game->pickcenter[0])) {
 			$lines = 0;
 			$spreadSum = 0;
+
 			foreach($game->pickcenter as $line) {
 				$lines++;
 				$spreadSum += $line->spread;
 			}
+
 			$spread = round(($spreadSum * 2) / $lines) / 2;
-			$query = 'SELECT openSpread, homeID, awayID FROM games WHERE id = ?';
+			$query = 'SELECT openSpread, openSpreadTime, homeID, awayID FROM games WHERE id = ?';
 			$queryArray = array($gameID);
 			$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 			$row = sqlsrv_fetch_array($rslt);
 			$openSpread = $row['openSpread'];
+			$openSpreadTime = $row['openSpreadTime'];
 			if($openSpread == null) {
 				$openSpread = abs($spread);
+				$openSpreadTime = new DateTime();
 			}
 			if($spread <= 0) {
 				$favID = $row['homeID'];
@@ -378,8 +389,8 @@ function updateESPNSpread($dbConn, $gameIDArray) {
 				$favID = $row['awayID'];
 				$dogID = $row['homeID'];
 			}
-			$query = 'UPDATE games SET openSpread = ?, closeSpread = ?, favID = ?, dogID = ? WHERE id = ?';
-			$queryArray = array($openSpread, abs($spread), $favID, $dogID, $gameID);
+			$query = 'UPDATE games SET openSpread = ?, openSpreadTime = ?, closeSpread = ?, favID = ?, dogID = ? WHERE id = ?';
+			$queryArray = array($openSpread, $openSpreadTime, abs($spread), $favID, $dogID, $gameID);
 			sqlsrv_query($dbConn, $query, $queryArray);
 		}
 	}

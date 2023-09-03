@@ -5,12 +5,16 @@ class weekObj {
 	public $year;
 	public $seasonType;
 	public $weekID;
+	public $startDate;
+	public $endDate;
 
 	function __construct($weekArray) {
 		$this->week = $weekArray['week'];
 		$this->year = $weekArray['year'];
 		$this->seasonType = $weekArray['seasonType'];
 		$this->weekID = $weekArray['id'];
+		$this->startDate = $weekArray['startDate'];
+		$this->endDate = $weekArray['endDate'];
 	}
 }
 

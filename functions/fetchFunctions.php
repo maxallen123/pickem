@@ -71,8 +71,9 @@ function getWeeksGames($dbConn, $curWeek) {
 				LEFT JOIN ranks AS awayRanks ON awayRanks.weekID = games.weekID AND awayRanks.teamID = games.awayID
 				LEFT JOIN venues AS venue ON games.venueID = venue.id
 				LEFT JOIN weeks AS weekPresent ON games.weekID = weekPresent.id
-				WHERE (games.weekID = ? AND openSpread <= ?) OR (games.weekID = ? AND forceInclude = 1) ORDER BY startDate ASC';
-	$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->weekID);
+				WHERE (games.weekID = ? AND openSpread <= ? AND (games.openSpreadTime <= DATEADD(' . $GLOBALS['graceUnit'] . ',' . $GLOBALS['graceOffset'] . ', ?) OR games.openSpreadTime IS NULL)) 
+				OR (games.weekID = ? AND forceInclude = 1) ORDER BY startDate ASC';
+	$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->startDate, $curWeek->weekID);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	if(sqlsrv_has_rows($rslt)) {
 		$games = array();

@@ -9,7 +9,7 @@ $teams = getTeams($dbConn);
 foreach($teams as $team) {
 	?>
 	.winner-<?= $team['id'] ?> {
-		background: #<?= $team['color'] ?>;
+		background: #<?= $team['color'] ?> !important;
 		color: #<?= $team['alternateColor'] ?> !important;
 	}
 	<?php

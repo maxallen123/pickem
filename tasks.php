@@ -132,7 +132,10 @@ function loadGamesCurWeek() {
 	$replace = array($curWeek->year, $curWeek->week, $curWeek->seasonType + 1);
 	$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
 
-	$scoreboard = json_decode(file_get_contents($searchString));
+	do {
+		$scoreboardStr = @file_get_contents($searchString);
+	} while(strlen($scoreboardStr) < 1000);
+	$scoreboard = json_decode($scoreboardStr);
 	
 	$games = $scoreboard->events;
 	foreach($games as $game) {
