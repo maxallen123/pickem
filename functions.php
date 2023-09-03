@@ -234,7 +234,7 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 						<select class="form-select selectPick <?php
 						if($game->completed) {
 							if($game->winnerID == $game->pick || ($game->jokeGame && $game->pick != -1)) {
-								echo 'winner-' . $game->winnerID;
+								echo 'winner-' . $game->pick;
 							}
 						}
 						?>
