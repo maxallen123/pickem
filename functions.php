@@ -231,7 +231,15 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 				<?php 
 				if(isset($_SESSION['uid'])) {
 					?>
-						<select class="form-select selectPick" <?php
+						<select class="form-select selectPick <?php
+						if($game->completed) {
+							if($game->winnerID == $game->pick || ($game->jokeGame && $game->pick != -1)) {
+								echo 'winner-' . $game->winnerID;
+							}
+						}
+						?>
+						"
+						<?php
 						if($game->date <= new DateTime()) {
 							echo "disabled";
 						}

@@ -127,13 +127,15 @@ function loadGamesCurWeek() {
 	$GLOBALS['graceOffset'] = 0;
 	$curWeek = getCurWeek($dbConn);
 	$gameIDArray = getWeeksGameIDs($dbConn, $curWeek, 1);
+	$limit = 300;
 	
-	$search = array('$year', '$week', '$seasonType');
-	$replace = array($curWeek->year, $curWeek->week, $curWeek->seasonType + 1);
+	$search = array('$year', '$week', '$seasonType', '$limit');
+	$replace = array($curWeek->year, $curWeek->week, $curWeek->seasonType + 1, $limit);
 	$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
 
 	do {
 		$scoreboardStr = @file_get_contents($searchString);
+		$limit++;
 	} while(strlen($scoreboardStr) < 1000);
 	$scoreboard = json_decode($scoreboardStr);
 	
