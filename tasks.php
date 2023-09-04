@@ -126,7 +126,6 @@ function loadGamesCurWeek() {
 	$dbConn = sqlConnect();
 	$GLOBALS['graceOffset'] = 0;
 	$curWeek = getCurWeek($dbConn);
-	$gameIDArray = getWeeksGameIDs($dbConn, $curWeek, 1);
 	$limit = 300;
 	
 	$search = array('$year', '$week', '$seasonType', '$limit');
@@ -142,9 +141,10 @@ function loadGamesCurWeek() {
 	$games = $scoreboard->events;
 	foreach($games as $game) {
 		loadGameScoreboard($dbConn, $game, $curWeek);
+		if($game->status->type->id == 1) {
+			updateESPNSpread($dbConn, $game->id);
+		}
 	}
-
-	updateESPNSpread($dbConn, $gameIDArray);
 }
 
 if(count($argv) > 1) {

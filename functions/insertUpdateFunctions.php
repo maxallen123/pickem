@@ -20,16 +20,18 @@ function insertUpdateGame($dbConn, $gameArray) {
 		homePoints, awayPoints, winnerID,
 		loserID, completed, 
 		statusID, curPeriod, curTime,
+		down, toGo, possession, yardLine,
 		id)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+		(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 	$queryUpdate = 'UPDATE games SET
 		name = ?, weekID = ?,
 		homeID = ?, awayID = ?, startDate = ?,
 		venueID = ?, isNeutral = ?, isConference = ?,
 		homePoints = ?, awayPoints = ?, winnerID = ?,
 		loserID = ?, completed = ?,
-		statusID = ?, curPeriod = ?, curTime = ?
+		statusID = ?, curPeriod = ?, curTime = ?,
+		down = ?, toGo = ?, possession = ?, yardLine = ?
 		WHERE id = ?';
 	$newUpdtArray = array(
 		$gameArray['name'], $gameArray['weekID'],
@@ -38,6 +40,7 @@ function insertUpdateGame($dbConn, $gameArray) {
 		$gameArray['homePoints'], $gameArray['awayPoints'], $gameArray['winnerID'],
 		$gameArray['loserID'], $gameArray['completed'], 
 		$gameArray['statusID'], $gameArray['curPeriod'], $gameArray['curTime'],
+		$gameArray['down'], $gameArray['toGo'], $gameArray['possession'], $gameArray['yardLine'],
 		$gameArray['id']
 	);
 	if(sqlsrv_has_rows(sqlsrv_query($dbConn, $queryCheck, array($gameArray['id'])))) {

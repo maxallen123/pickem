@@ -120,6 +120,10 @@ function printGame($dbConn, $game, $firstRow, $users) {
 	printRowTeam($dbConn, $game->away, $game, 'away');
 	printRowTeam($dbConn, $game->home, $game, 'home');
 	?>
+	<tr>
+		<td class="gameStatus" id="gameStatus-<?= $game->id ?>">
+		</td>
+	</tr>
 	<tr class="lastRow" id="lastRow-<?= $game->id ?>">
 		<td class="gameName" id="gameName-<?= $game->id ?>" colspan="9">
 			<?php

@@ -134,3 +134,11 @@
 	background: var(--bs-secondary-bg-subtle) !important;
 	color: #41484f !important;
 }
+
+.possession::after {
+	content: '⬬';
+}
+
+.redzone::after {
+	color: red;
+}

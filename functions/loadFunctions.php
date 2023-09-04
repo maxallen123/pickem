@@ -326,6 +326,23 @@ function loadGameScoreboard($dbConn, $game, $curWeek) {
 	$gameArray['curPeriod'] = $game->status->period;
 	$gameArray['curTime'] = $game->status->clock;
 
+	if(in_array($gameArray['statusID'], array(2, 22))) {
+		$gameArray['down'] = $game->situation->down;
+		if($gameArray['down'] != -1) {
+			$gameArray['toGo'] = $game->situation->distance;
+			$gameArray['possession'] = $game->situation->possession;
+		} else {
+			$gameArray['toGo'] = null;
+			$gameArray['possession'] = $game->situation->lastPlay->team->id;
+		}
+		$gameArray['yardLine'] = $game->situation->yardLine;
+	} else {
+		$gameArray['down'] = null;
+		$gameArray['toGo'] = null;
+		$gameArray['possession'] = null;
+		$gameArray['yardLine'] = null;
+	}
+
 	if($gameArray['statusID'] == 3) {
 		$gameArray['completed'] = 1;
 		if($gameArray['homePoints'] > $gameArray['awayPoints']) {
@@ -355,48 +372,46 @@ function loadGameScoreboard($dbConn, $game, $curWeek) {
 	insertUpdateGame($dbConn, $gameArray);
 }
 
-function updateESPNSpread($dbConn, $gameIDArray) {
+function updateESPNSpread($dbConn, $gameID) {
 	$search = '$gameID';
-	foreach($gameIDArray as $gameID) {
-		$replace = $gameID;
-		$searchString = str_replace($search, $replace, $GLOBALS['espnGameURL']);
-		
-		do{
-			$gameStr = @file_get_contents($searchString);
-		} while(strlen($gameStr) < 1000);
-		
-		$game = json_decode($gameStr);
-		if(isset($game->pickcenter[0])) {
-			$lines = 0;
-			$spreadSum = 0;
+	$replace = (string)$gameID;
+	$searchString = str_replace($search, $replace, $GLOBALS['espnGameURL']);
+	
+	do{
+		$gameStr = @file_get_contents($searchString);
+	} while(strlen($gameStr) < 1000);
+	
+	$game = json_decode($gameStr);
+	if(isset($game->pickcenter[0])) {
+		$lines = 0;
+		$spreadSum = 0;
 
-			foreach($game->pickcenter as $line) {
-				$lines++;
-				$spreadSum += $line->spread;
-			}
-
-			$spread = round(($spreadSum * 2) / $lines) / 2;
-			$query = 'SELECT openSpread, openSpreadTime, homeID, awayID FROM games WHERE id = ?';
-			$queryArray = array($gameID);
-			$rslt = sqlsrv_query($dbConn, $query, $queryArray);
-			$row = sqlsrv_fetch_array($rslt);
-			$openSpread = $row['openSpread'];
-			$openSpreadTime = $row['openSpreadTime'];
-			if($openSpread == null) {
-				$openSpread = abs($spread);
-				$openSpreadTime = new DateTime();
-			}
-			if($spread <= 0) {
-				$favID = $row['homeID'];
-				$dogID = $row['awayID'];
-			} else {
-				$favID = $row['awayID'];
-				$dogID = $row['homeID'];
-			}
-			$query = 'UPDATE games SET openSpread = ?, openSpreadTime = ?, closeSpread = ?, favID = ?, dogID = ? WHERE id = ?';
-			$queryArray = array($openSpread, $openSpreadTime, abs($spread), $favID, $dogID, $gameID);
-			sqlsrv_query($dbConn, $query, $queryArray);
+		foreach($game->pickcenter as $line) {
+			$lines++;
+			$spreadSum += $line->spread;
 		}
+
+		$spread = round(($spreadSum * 2) / $lines) / 2;
+		$query = 'SELECT openSpread, openSpreadTime, homeID, awayID FROM games WHERE id = ?';
+		$queryArray = array($gameID);
+		$rslt = sqlsrv_query($dbConn, $query, $queryArray);
+		$row = sqlsrv_fetch_array($rslt);
+		$openSpread = $row['openSpread'];
+		$openSpreadTime = $row['openSpreadTime'];
+		if($openSpread == null) {
+			$openSpread = abs($spread);
+			$openSpreadTime = new DateTime();
+		}
+		if($spread <= 0) {
+			$favID = $row['homeID'];
+			$dogID = $row['awayID'];
+		} else {
+			$favID = $row['awayID'];
+			$dogID = $row['homeID'];
+		}
+		$query = 'UPDATE games SET openSpread = ?, openSpreadTime = ?, closeSpread = ?, favID = ?, dogID = ? WHERE id = ?';
+		$queryArray = array($openSpread, $openSpreadTime, abs($spread), $favID, $dogID, $gameID);
+		sqlsrv_query($dbConn, $query, $queryArray);
 	}
 }
 ?>
