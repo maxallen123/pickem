@@ -45,9 +45,20 @@ function countryName($code) {
 	}
 }
 
+function getOrdinal($number) {
+	$suffix = array('th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th');
+	if ((($number % 100) >= 11) && (($number % 100) <= 13)) {
+		$ordinal = $number . 'th';
+	} else {
+		$ordinal = $number . $suffix[$number % 10];
+	}
+
+	return $ordinal;
+}
+
 function printGame($dbConn, $game, $firstRow, $users) {
 	?>
-	<tr>
+	<tr class="firstRow">
 		<th class="header-status" colspan="3" id="header-status-<?= $game->id ?>">
 		</th>
 		<th class="header-lineScore">
@@ -121,7 +132,42 @@ function printGame($dbConn, $game, $firstRow, $users) {
 	printRowTeam($dbConn, $game->home, $game, 'home');
 	?>
 	<tr>
-		<td class="gameStatus" id="gameStatus-<?= $game->id ?>">
+		<td class="gameStatus" id="gameStatus-<?= $game->id ?>" colspan="3">
+			<?php
+			if(in_array($game->statusID, array(2, 22))) {
+				if($game->possession == $game->home->id) {
+					$hasBall = 'home';
+					$notBall = 'away';
+				} else {
+					$hasBall = 'away';
+					$notBall = 'home';
+				}
+
+				$yardLine = $game->yardLine;
+				if($yardLine > 50) {
+					$yardLine = abs($yardLine - 100);
+					$fieldSide = $game->away->abbr;
+				} else if($yardLine != 50) {
+					$fieldSide = $game->home->abbr;
+				} else {
+					$fieldSide = 'the';
+				}
+
+				if($yardLine - $game->toGo == 0) {
+					$toGo = 'Goal';
+				} else {
+					$toGo = $game->toGo;
+				}
+
+				if($game->down > 0) {
+					$gameStatus = getOrdinal($game->down) . ' and ' . $toGo . ' at ' . $fieldSide . ' ' . $yardLine;
+				} else {
+					$gameStatus = 'Kickoff ' + $game->{$hasBall}->abbr;
+				}
+
+				echo $gameStatus;
+			}
+			?>
 		</td>
 	</tr>
 	<tr class="lastRow" id="lastRow-<?= $game->id ?>">
@@ -169,7 +215,16 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 			}
 			?>
 		</td>
-		<td class="teamName <?= $winnerClass ?>" id="teamName-<?= $homeAway . '-' . $game->id ?>">
+		<td class="teamName <?= $winnerClass ?><?php
+		if(in_array($game->statusID, array(2, 22))) {
+			if($team->id == $game->possession) {
+				echo ' possession';
+				if(($homeAway == 'home' && $game->yardLine >= 80) || ($homeAway == 'away' && $game->yardLine <= 20)) {
+					echo ' redzone';
+				}
+			}
+		}
+		?>" id="teamName-<?= $homeAway . '-' . $game->id ?>">
 			<a class="link-underline link-underline-opacity-0 link-underline-opacity-100-hover link-light <?= $winnerClass ?>" href="https://www.espn.com/college-football/team/_/id/<?= $team->id ?>" target="_blank" id='schoolLink-<?= $homeAway . '-' . $game->id ?>'><?= $team->school ?></a>
 		</td>
 		<?php

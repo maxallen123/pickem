@@ -1,3 +1,7 @@
+.firstRow {
+	height: 30px;
+}
+
 .header-status {
 	font-variant: small-caps;
 	font-size: 14px;
@@ -141,4 +145,11 @@
 
 .redzone::after {
 	color: red;
+}
+
+.gameStatus {
+	font-variant: small-caps;
+	font-size: 14px;
+	vertical-align: bottom;
+	font-weight: bold;
 }

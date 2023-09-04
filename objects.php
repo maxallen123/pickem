@@ -29,6 +29,10 @@ class gameObj {
 	public $statusID;
 	public $curPeriod;
 	public $curTime;
+	public $down;
+	public $toGo;
+	public $yardLine;
+	public $possession;
 	public $completed;
 	public $homePoints;
 	public $awayPoints;
@@ -118,6 +122,10 @@ class gameObj {
 		$this->statusID = $gameArray['statusID'];
 		$this->curPeriod = $gameArray['curPeriod'];
 		$this->curTime = $gameArray['curTime'];
+		$this->down = $gameArray['down'];
+		$this->toGo = $gameArray['toGo'];
+		$this->yardLine = $gameArray['yardLine'];
+		$this->possession = $gameArray['possession'];
 		$this->completed = $gameArray['completed'];
 		$this->homePoints = $gameArray['homePoints'];
 		$this->awayPoints = $gameArray['awayPoints'];

@@ -101,6 +101,55 @@ function updateHeader(game) {
 	}
 }
 
+function updateGameStatus(game) {
+	var gameStatusCell = '#gameStatus-' + game['id'];
+	if([2, 22].includes(game['statusID'])) {
+		if(game['possession'] == game['home']['id']) {
+			var hasBall = 'home';
+			var notBall = 'away';
+		} else {
+			var hasBall = 'away';
+			var notBall = 'home';
+		}
+		var hasBallNameCell = '#teamName-' + hasBall + '-' + game['id'];
+		var notBallNameCell = '#teamName-' + notBall + '-' + game['id'];
+		$(hasBallNameCell).addClass('possession');
+		$(notBallNameCell).removeClass('possession');
+		var yardLine = game['yardLine'];
+		if(yardLine > 50) {
+			yardLine = Math.abs(yardLine - 100);
+			var fieldSide = game['away']['abbr'];
+		} else if(yardLine != 50) {
+			var fieldSide = game['home']['abbr'];
+		} else {
+			var fieldSide = 'the'
+		}
+
+		if(yardLine - game['toGo'] == 0) {
+			toGo = 'Goal';
+		} else {
+			toGo = game['toGo'];
+		}
+		
+		if(game['down'] > 0) {
+			var gameStatus = ordinal_suffix_of(game['down']) + ' and ' + toGo + ' at ' + fieldSide + ' ' + yardLine;
+		} else {
+			gameStatus = 'Kickoff ' + game[hasBall]['abbr'];
+		}
+		$(gameStatusCell).text(gameStatus);
+
+		if((hasBall == 'home' && game['yardLine'] >= 80) || (hasBall == 'away' && game['yardLine'] <= 20)) {
+			$(hasBallNameCell).addClass('redzone');
+		} else {
+			$(hasBallNameCell).removeClass('redzone');
+		}
+	} else {
+		$(gameStatusCell).text('');
+		$('#teamName-home-' + game['id']).removeClass(['possession', 'redzone']);
+		$('#teamName-away-' + game['id']).removeClass(['possession', 'redzone']);
+	}
+}
+
 function updatePicks() {
 	$.ajax({
 		method: 'POST',
@@ -131,6 +180,7 @@ function updatePicks() {
 
 					// Update Time/Finished fields
 					updateHeader(game);
+					updateGameStatus(game);
 					if(game['completed']) {
 						if(game['pick'] != null) {
 							if(game['pick'] == game['winnerID'] || (game['jokeGame'] == 1 && game['pick'] != -1)) {
@@ -187,6 +237,8 @@ function compare() {
 								} else {
 									$(compareScore).text(curScore);
 									$(compareScore).removeClass('scoreWinner');
+									$(compareID).removeClass('winner-' + pick['winnerID']);
+									$(compareID).removeClass('winner-' + pick['loserID']);
 									$(compareID).addClass('loserSelect');
 								}
 							}
