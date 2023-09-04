@@ -234,12 +234,55 @@ class userObj {
 	public $name;
 	public $team;
 	public $email;
+	public $score;
+	public $wins;
+	public $losses;
 
 	function __construct($userArray) {
 		$this->id = $userArray['id'];
 		$this->name = $userArray['name'];
 		$this->team = $userArray['team'];
 		$this->email = $userArray['email'];
+	}
+
+	function liveScoreRecord($dbConn, $curWeek) {
+		$query = 'SELECT SUM(multiplier) AS score 
+			FROM picks 
+				LEFT JOIN games ON picks.gameID = games.id 
+				LEFT JOIN weeks ON weeks.id = games.weekID
+			WHERE (games.winnerID = picks.teamID  
+				AND picks.userID = ?
+				AND weeks.year = ?)
+			OR (games.jokeGame = 1
+				AND picks.userID = ?
+				AND weeks.year = ?)';
+		$queryArray = array($this->id, $curWeek->year, $this->id, $curWeek->year);
+		$this->score = sqlsrv_fetch_array(sqlsrv_query($dbConn, $query, $queryArray))['score'];
+		if($this->score == null) {
+			$this->score = 0;
+		}
+
+		$query = 'SELECT COUNT(multiplier) AS wins
+			FROM picks 
+					LEFT JOIN games ON picks.gameID = games.id 
+					LEFT JOIN weeks ON weeks.id = games.weekID
+				WHERE (games.winnerID = picks.teamID  
+					AND picks.userID = ?
+					AND weeks.year = ?)
+				OR (games.jokeGame = 1
+					AND picks.userID = ?
+					AND weeks.year = ?)';
+		$this->wins = sqlsrv_fetch_array(sqlsrv_query($dbConn, $query, $queryArray))['wins'];
+		$query = 'SELECT COUNT(multiplier) AS losses
+			FROM picks 
+				LEFT JOIN games ON picks.gameID = games.id 
+				LEFT JOIN weeks ON weeks.id = games.weekID
+			WHERE (games.winnerID <> picks.teamID  
+				AND picks.userID = ?
+				AND games.jokeGame IS NULL
+				AND weeks.year = ?)';
+		$queryArray = array($this->id, $curWeek->year);
+		$this->losses = sqlsrv_fetch_array(sqlsrv_query($dbConn, $query, $queryArray))['losses'];
 	}
 }
 

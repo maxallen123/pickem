@@ -130,9 +130,10 @@ function getConfs($dbConn) {
 }
 
 // Fetch array of users
-function getUsers($dbConn) {
-	$query = 'SELECT * FROM users ORDER BY name ASC';
-	$rslt = sqlsrv_query($dbConn, $query);
+function getUsers($dbConn, $curWeek) {
+	$query = 'SELECT * FROM users WHERE id IN (SELECT DISTINCT(userID) FROM picks LEFT JOIN games ON games.id = picks.gameID LEFT JOIN weeks ON games.weekID = weeks.id WHERE weeks.year = ?) ORDER BY name ASC';
+	$queryArray = array($curWeek->year);
+	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	$users = array();
 
 	while($userArray = sqlsrv_fetch_array($rslt)) {
@@ -151,7 +152,7 @@ function getWeeksGameIDs($dbConn, $curWeek, $all) {
 		$queryArray = array($curWeek->weekID);
 	} else {
 		$query .= '(weekID = ? AND openSpread <= ?) OR (forceInclude = 1 AND weekID = ?)';
-		$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->id);
+		$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->weekID);
 	}
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	if(sqlsrv_has_rows($rslt)) {
@@ -181,5 +182,32 @@ function getUserScore($dbConn, $userID, $curWeek) {
 		$score = 0;
 	}
 	return $score;
+}
+
+function getLiveUserScore($dbConn, $userID, $curWeek) {
+	$query = 'SELECT SUM(multiplier) AS score 
+		FROM picks 
+			LEFT JOIN games ON picks.gameID = games.id 
+			LEFT JOIN weeks ON weeks.id = games.weekID
+		WHERE (games.winnerID = picks.teamID  
+			AND picks.userID = ?
+			AND weeks.year = ?)
+		OR (games.jokeGame = 1
+			AND picks.userID = ?
+			AND weeks.year = ?)';
+	$queryArray = array($userID, $curWeek->year, $userID, $curWeek->year);
+	$score = sqlsrv_fetch_array(sqlsrv_query($dbConn, $query, $queryArray))['score'];
+	if($score == null) {
+		$score = 0;
+	}
+	return $score;
+}
+
+function scoreSort($a, $b) {
+	if($a->score < $b->score) {
+		return true;
+	} else {
+		return false;
+	}
 }
 ?>

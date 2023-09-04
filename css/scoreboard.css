@@ -1,0 +1,43 @@
+.scoreboard {
+	width: 514px;
+}
+
+.scoreboard-header {
+	font-variant: small-caps;
+	font-size: 18px;
+	text-align: center;
+	border: 1px solid gray;
+}
+
+.scoreboard-header-rank {
+	width: 40px;
+}
+
+.scoreboard-user {
+	font-size: 16px;
+	border: 1px solid gray;
+}
+
+.scoreboard-rank {
+	text-align: right;
+}
+
+.scoreboard-logo {
+	text-align: right;
+	width: 50px;
+}
+
+.scoreboard-name {
+	width: 300px;
+	font-variant: small-caps;
+}
+
+.scoreboard-record {
+	width: 50px;
+	text-align: center;
+}
+
+.scoreboard-points {
+	width: 50px;
+	text-align: right;
+}
