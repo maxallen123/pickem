@@ -93,6 +93,12 @@ function updateHeader(game) {
 			$(statusHeader).text(ordinal_suffix_of(game['curPeriod'] - 4) + ' Overtime');
 		}
 	}
+	if(game['statusID'] == 22) {
+		$(statusHeader).text('End of ' + ordinal_suffix_of(game['curPeriod']) + ' Quarter');
+	}
+	if(game['statusID'] == 23) {
+		$(statusHeader).text('Halftime');
+	}
 }
 
 function updatePicks() {
