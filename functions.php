@@ -412,7 +412,7 @@ function pageHeader($pageTitle) {
 			<script src="js/functions.js"></script>
 		</head>
 		<body>
-			<div class="container-fluid h-100">
+			<!--<div class="container-fluid h-100">
 				<header class="p-2" style="background-color: #<?= $color ?>; color: #<?= $altColor ?>">
 						<div class="row align-items-center">
 							<div class="col-auto">
@@ -439,7 +439,43 @@ function pageHeader($pageTitle) {
 								?>
 							</div>
 						</div>
-				</header>
+				</header> -->
+				<nav class="navbar navbar-expand" style="background-color: #<?= $color ?>; color: #<?= $altColor ?>">
+					<div class="container-fluid pageHeader">
+						<span class="pickEm">
+							<ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll">
+								<li class="nav-item">
+									<img src="logo.php" height="30px">
+									&nbsp&nbspPick 'Em
+								</li>
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle hamburger" href="#" role="button" data-bs-toggle="dropdown">
+									☰
+									</a>
+									<ul class="dropdown-menu">
+										<li><a class="dropdown-item" href="index.php">Main Page</a></li>
+										<li><a class="dropdown-item" href="scoreboard.php">User Scoreboard</a></li>
+									</ul>
+								</li>
+							</ul>
+						</span>
+						<?php
+						if(isset($_SESSION['uid'])) {
+							?>
+							<span class="logOut"><a href="logout.php" class="link-underline link-underline-opacity-0 link-underline-opacity-100-hover" style="color: #<?= $altColor ?>">
+								<img src="<?= $_SESSION['logo'] ?>" height="30px">
+								<br>
+								Log Out
+							</a></span>
+							<?php
+						} else {
+							?>
+							<a href="login.php" class="link-underline link-underline-opacity-0 link-underline-opacity-100-hover" style="color: #<?= $altColor ?>"><h5>Log In</h5></a>
+							<?php
+						}
+						?>
+					</div>
+				</nav>
 				<div class="row d-flex flex-column justify-content-center align-items-center">
 	<?php
 }

@@ -153,3 +153,17 @@
 	vertical-align: bottom;
 	font-weight: bold;
 }
+
+.pickEm {
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.hamburger {
+	vertical-align: top;
+	display: inline;
+}
+
+.logOut {
+	text-align: center !important;
+}
