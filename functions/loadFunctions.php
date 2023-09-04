@@ -320,9 +320,13 @@ function loadGameScoreboard($dbConn, $game, $curWeek) {
 	$gameArray['isConference'] = $game->conferenceCompetition;
 	$gameArray['homePoints'] = $game->competitors[$homeIndex]->score;
 	$gameArray['awayPoints'] = $game->competitors[$awayIndex]->score;
-
+	
 	// Code to update for in progress
-	if($game->status->type->id == 3) {
+	$gameArray['statusID'] = $game->status->type->id;
+	$gameArray['curPeriod'] = $game->status->period;
+	$gameArray['curTime'] = $game->status->clock;
+
+	if($gameArray['statusID'] == 3) {
 		$gameArray['completed'] = 1;
 		if($gameArray['homePoints'] > $gameArray['awayPoints']) {
 			$gameArray['winnerID'] = $gameArray['homeID'];

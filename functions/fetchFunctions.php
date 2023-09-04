@@ -50,6 +50,7 @@ function getWeeksGames($dbConn, $curWeek) {
 				awayConference.name AS awayConfName, awayConference.short_name AS awayConfShortName, awayConference.abbreviation AS awayConfAbbr, awayConference.isFBS AS awayConfIsFBS,
 				games.startDate,
 				venueID, venue.name AS venueName, venue.city AS city, venue.state AS state, venue.country AS country,
+				statusID, curPeriod, curTime,
 				completed, homePoints, awayPoints, winnerID, loserID, favID, dogID, closeSpread AS spread, isConference,
 				(SELECT COUNT(gameID) FROM picks WHERE gameID = games.id AND teamID = games.homeID) AS homePicks,
 				(SELECT COUNT(gameID) FROM picks WHERE gameID = games.id AND teamID = games.awayID) AS awayPicks,

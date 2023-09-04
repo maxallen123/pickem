@@ -26,6 +26,9 @@ class gameObj {
 	public $away;
 	public $date;
 	public $venue;
+	public $statusID;
+	public $curPeriod;
+	public $curTime;
 	public $completed;
 	public $homePoints;
 	public $awayPoints;
@@ -112,6 +115,9 @@ class gameObj {
 					'country' => $gameArray['country']
 				)
 			);
+		$this->statusID = $gameArray['statusID'];
+		$this->curPeriod = $gameArray['curPeriod'];
+		$this->curTime = $gameArray['curTime'];
 		$this->completed = $gameArray['completed'];
 		$this->homePoints = $gameArray['homePoints'];
 		$this->awayPoints = $gameArray['awayPoints'];

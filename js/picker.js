@@ -72,6 +72,29 @@ function winnerCSS(game) {
 	$('#others-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
 }
 
+function updateHeader(game) {
+	var statusHeader = '#header-status-' + game['id'];
+	if(game['completed']) {
+		$(statusHeader).text('Final');
+	}
+	if(game['statusID'] == 1) {
+		$(statusHeader).text(formattedDateTime(date));
+	}
+	if(game['statusID'] == 2) {
+		if(game['curPeriod'] < 5) {
+			var quarterName = ordinal_suffix_of(game['curPeriod']) + ' Quarter';
+			var minutes = Math.floor(game['curTime'] / 60);
+			var seconds = game['curTime'] % 60;
+			if(seconds < 10) {
+				seconds = '0' + seconds;
+			}
+			$(statusHeader).text(quarterName + ' - ' + minutes + ':' + seconds);
+		} else {
+			$(statusHeader).text(ordinal_suffix_of(game['curPeriod'] - 4) + ' Overtime');
+		}
+	}
+}
+
 function updatePicks() {
 	$.ajax({
 		method: 'POST',
@@ -86,7 +109,6 @@ function updatePicks() {
 				$.each(picks, function(index, game) {
 					var date = new Date(game['date']['date'] + 'Z');
 					var curDate = new Date();
-					var statusHeader = '#header-status-' + game['id'];
 					var selectID = '#pick-' + game['id'];
 					var othersAway = '#others-away-' + game['id'];
 					var othersHome = '#others-home-' + game['id'];
@@ -102,8 +124,8 @@ function updatePicks() {
 					}
 
 					// Update Time/Finished fields
+					updateHeader(game);
 					if(game['completed']) {
-						$(statusHeader).text('Final');
 						if(game['pick'] != null) {
 							if(game['pick'] == game['winnerID'] || (game['jokeGame'] == 1 && game['pick'] != -1)) {
 								$(selectID).addClass('winner-' + game['pick']);
@@ -115,9 +137,7 @@ function updatePicks() {
 								$(selectID).addClass('loserSelect');
 							}
 						}
-					} else {
-						$(statusHeader).text(formattedDateTime(date));
-					}
+					} 
 					
 					// Disable fields when game starts
 					if(date.getTime() < curDate.getTime()) {
