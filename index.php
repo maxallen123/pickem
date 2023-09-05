@@ -17,7 +17,7 @@ if(isset($_SESSION['uid'])) {
 /*header('Content-type: application/json');
 echo json_encode($weeksGames); */
 ?>
-		<table class="table-sm align-middle m-3">
+		<table class="table-sm align-middle m-8">
 			<tr class="lastRow">
 			</tr>
 			<?php

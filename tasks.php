@@ -122,9 +122,10 @@ function loadRanks($year, $seasonType, $week) {
 	}
 }
 
-function loadGamesCurWeek() {
+function loadGamesCurWeeks() {
 	$dbConn = sqlConnect();
-	$GLOBALS['graceOffset'] = 0;
+	$GLOBALS['graceOffset'] = -6;
+	$GLOBALS['graceUnit'] = 'hour';
 	$curWeek = getCurWeek($dbConn);
 	$limit = 300;
 	

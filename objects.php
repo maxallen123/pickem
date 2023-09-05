@@ -26,6 +26,7 @@ class gameObj {
 	public $away;
 	public $date;
 	public $venue;
+	public $isNeutral;
 	public $statusID;
 	public $curPeriod;
 	public $curTime;
@@ -98,6 +99,7 @@ class gameObj {
 			'state' => $gameArray['state'],
 			'country' => $gameArray['country']
 		);
+		$this->isNeutral = $gameArray['isNeutral'];
 
 		$this->home = new teamObj(
 			$dbConn,
@@ -234,6 +236,8 @@ class userObj {
 	public $name;
 	public $team;
 	public $email;
+	public $color;
+	public $altColor;
 	public $score;
 	public $wins;
 	public $losses;
@@ -243,6 +247,8 @@ class userObj {
 		$this->name = $userArray['name'];
 		$this->team = $userArray['team'];
 		$this->email = $userArray['email'];
+		$this->color = $userArray['color'];
+		$this->altColor = $userArray['alternateColor'];
 	}
 
 	function liveScoreRecord($dbConn, $curWeek) {

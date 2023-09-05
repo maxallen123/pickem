@@ -43,7 +43,7 @@ function getCurWeek($dbConn) {
 // Returns array of specified week's games 
 function getWeeksGames($dbConn, $curWeek) {
 	$query = 'SELECT 
-				games.id, games.weekID, games.name, games.customName, games.multiplier, games.jokeGame,
+				games.id, games.weekID, games.name, games.customName, games.multiplier, games.jokeGame, games.isNeutral,
 				homeID, home.school AS homeSchool, home.mascot AS homeMascot, home.abbreviation as homeAbbr, home.conferenceID AS homeConfID, home.comedyName AS homeComedyName,
 				homeConference.name AS homeConfName, homeConference.short_name AS homeConfShortName, homeConference.abbreviation AS homeConfAbbr, homeConference.isFBS AS homeConfIsFBS,
 				awayID, away.school AS awaySchool, away.mascot AS awayMascot, away.abbreviation as awayAbbr, away.conferenceID AS awayConfID, away.comedyName AS awayComedyName,
@@ -131,7 +131,7 @@ function getConfs($dbConn) {
 
 // Fetch array of users
 function getUsers($dbConn, $curWeek) {
-	$query = 'SELECT * FROM users WHERE id IN (SELECT DISTINCT(userID) FROM picks LEFT JOIN games ON games.id = picks.gameID LEFT JOIN weeks ON games.weekID = weeks.id WHERE weeks.year = ?) ORDER BY name ASC';
+	$query = 'SELECT users.id, users.name, users.email, users.team, teams.color, teams.alternateColor FROM users LEFT JOIN teams ON teams.id = users.team WHERE users.id IN (SELECT DISTINCT(userID) FROM picks LEFT JOIN games ON games.id = picks.gameID LEFT JOIN weeks ON games.weekID = weeks.id WHERE weeks.year = ?) ORDER BY name ASC';
 	$queryArray = array($curWeek->year);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	$users = array();
