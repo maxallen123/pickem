@@ -73,12 +73,13 @@ function winnerCSS(game) {
 }
 
 function updateHeader(game) {
+	var date = new Date(game['date']['date'] + 'Z');
 	var statusHeader = '#header-status-' + game['id'];
 	if(game['completed']) {
 		$(statusHeader).text('Final');
 	}
 	if(game['statusID'] == 1) {
-		$(statusHeader).text(formattedDateTime(game['date']));
+		$(statusHeader).text(formattedDateTime(date));
 	}
 	if(game['statusID'] == 2) {
 		if(game['curPeriod'] < 5) {
