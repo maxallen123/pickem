@@ -1,9 +1,11 @@
 <?php
 
 require('variables.php');
+require('functions/emailFunctions.php');
 require('functions/htmlFunctions.php');
 require('functions/loadFunctions.php');
 require('functions/fetchFunctions.php');
+require('functions/queriesFunctions.php');
 require('functions/insertUpdateFunctions.php');
 require('objects.php');
 
@@ -80,11 +82,27 @@ function logoInlineEmail($user) {
 	
 	ob_start();
 	imagepng($im);
-	imagedestroy($im);
 	$image = ob_get_contents();
 	ob_end_clean();
 	$base64 = 'data:image/png;base64,' . base64_encode($image);
 	return $base64;
 	
+}
+
+function base64ImageResize($b64Img, $height) {
+	$imgRaw = base64_decode(substr($b64Img, 22));
+	$img = imagecreatefromstring($imgRaw);
+	$x = imagesx($img);
+	$y = imagesy($img);
+	$newX = round($x * ($height / $y));
+	$img = imagescale($img, $newX, $height, IMG_SINC);
+	imagealphablending($img, true);
+	imagesavealpha($img, true);
+	ob_start();
+	imagepng($img);
+	$imgRaw = ob_get_contents();
+	ob_end_clean();
+	$b64Img = 'data:image/png;base64,' . base64_encode($imgRaw);
+	return $b64Img;
 }
 ?>

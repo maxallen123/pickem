@@ -3,6 +3,7 @@ include('Mail.php');
 require('functions.php');
 
 $dbConn = sqlConnect();
+$GLOBALS['graceOffset'] = -2;
 $oldWeek = getCurWeek($dbConn);
 $GLOBALS['graceOffset'] = 1;
 $newWeek = getCurWeek($dbConn);
@@ -24,18 +25,14 @@ $headers['Content-Type'] = 'text/html; charset=UTF-8';
 
 $body  = '<p style="color: white; text-align: center">Week ' . $oldWeek->week . ' is now in the books! The current standings:</p>';
 $body .= mailScoreboard($dbConn, $users, $oldWeek);
-$body .= '<br><p style="color: white; text-align: center">Games for Week ' . $newWeek->week . ':</p>';
+$body .= '<br><p style="color: white; text-align: center">Week ' . $newWeek->week . ' is open, make your picks now at <a href="' . $GLOBALS['baseURL'] . '">' . $GLOBALS['baseURL'] . '</a><br>Games for Week ' . $newWeek->week . ':</p>';
 $body .= mailWeeksGames($dbConn, $newWeek, $oldWeek);
-$body .= '</td></tr></table>';
+$body .= '</td></tr></table></body></html>';
 
 foreach($users as $user) {
 	$bodyUser = mailHeader($user) . $body;
 	$bodyUser = mailBodyStart() . $bodyUser;
 	$recipients = $user->email;
 	$headers['To'] = $user->name . ' <' . $user->email . '>';
-	if($user->email == 'brad.allen@amanomcgann.com') {
-		//$mail->send($recipients, $headers, $body);
-	}
+	$mail->send($recipients, $headers, $bodyUser);
 }
-
-echo $bodyUser;
