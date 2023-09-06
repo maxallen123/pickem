@@ -27,7 +27,7 @@ if(isset($_GET['teamID'])) {
 		$im = imagescale($im, $newWidth, $_GET['height'], IMG_SINC);
 	}
 
-	imagealphablending( $im, false );
+	imagealphablending( $im, true );
 	imagesavealpha( $im, true );
 	imagepng($im);
 	imagedestroy($im);
