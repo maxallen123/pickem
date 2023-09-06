@@ -387,8 +387,10 @@ function updateESPNSpread($dbConn, $gameID) {
 		$spreadSum = 0;
 
 		foreach($game->pickcenter as $line) {
-			$lines++;
-			$spreadSum += $line->spread;
+			if($lines == 0) {
+				$lines++;
+				$spreadSum += $line->spread;
+			}
 		}
 
 		$spread = round(($spreadSum * 2) / $lines) / 2;
