@@ -78,7 +78,7 @@ function updateHeader(game) {
 		$(statusHeader).text('Final');
 	}
 	if(game['statusID'] == 1) {
-		$(statusHeader).text(formattedDateTime(date));
+		$(statusHeader).text(formattedDateTime(game['date']));
 	}
 	if(game['statusID'] == 2) {
 		if(game['curPeriod'] < 5) {
