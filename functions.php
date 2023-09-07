@@ -28,6 +28,34 @@ function sqlConnect() {
 	return $conn;
 }
 
+function sqlConnectAll() {
+	$dbConns = array();
+	if(str_contains(__DIR__, 'dev')) {
+		$dbNameArray = array('football-dev');
+	} else {
+		$dbNameArray = array('football-ami', 'football-allen', 'football-sascar');
+	}
+	foreach($dbNameArray as $dbName) {
+		$connectionOptions = array(
+			"Database" => $dbName,
+			"UID" => $GLOBALS['sqlUser'],
+			"PWD" => $GLOBALS['sqlPwd'],
+			"Encrypt" => 1,
+			"TrustServerCertificate" => 1,
+			"APP" => $dbName
+		);
+		$conn = sqlsrv_connect($GLOBALS['sqlAddr'], $connectionOptions);
+		if( $conn === false ) {
+			echo "Could not connect.\n";
+			die( print_r( sqlsrv_errors(), true));
+		}
+		array_push($dbConns, $conn);
+	}
+
+	loadGlobals($dbConns[0]);
+	return $dbConns;
+}
+
 function httpRequestOpts() {
 	$opts = [
 		"http" => [

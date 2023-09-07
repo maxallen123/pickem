@@ -424,4 +424,49 @@ function updateESPNSpread($dbConn, $gameID) {
 		sqlsrv_query($dbConn, $query, $queryArray);
 	}
 }
+
+function updateESPNSpread2($dbConn, $gameID, $game) {
+
+	if(isset($game->pickcenter[0])) {
+		$lines = 0;
+		$spreadSum = 0;
+
+		foreach($game->pickcenter as $line) {
+			if(isset($line->spread)) {
+				$lines++;
+				$spreadSum += $line->spread;
+			}
+		}
+
+		if($lines != 0) {
+			$spread = round(($spreadSum * 2) / $lines) / 2;
+			$query = 'SELECT openSpread, openSpreadTime, homeID, awayID FROM games WHERE id = ?';
+			$queryArray = array($gameID);
+			$rslt = sqlsrv_query($dbConn, $query, $queryArray);
+			$row = sqlsrv_fetch_array($rslt);
+			$openSpread = $row['openSpread'];
+			$openSpreadTime = $row['openSpreadTime'];
+			if($openSpread == null) {
+				$openSpread = abs($spread);
+				$openSpreadTime = new DateTime();
+			}
+			if($spread <= 0) {
+				$favID = $row['homeID'];
+				$dogID = $row['awayID'];
+			} else {
+				$favID = $row['awayID'];
+				$dogID = $row['homeID'];
+			}
+		} else {
+			$openSpread = null;
+			$openSpreadTime = null;
+			$spread = null;
+			$favID = null;
+			$dogID = null;
+		}
+		$query = 'UPDATE games SET openSpread = ?, openSpreadTime = ?, closeSpread = ?, favID = ?, dogID = ? WHERE id = ?';
+		$queryArray = array($openSpread, $openSpreadTime, abs($spread), $favID, $dogID, $gameID);
+		sqlsrv_query($dbConn, $query, $queryArray);
+	}
+}
 ?>
