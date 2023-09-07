@@ -2,7 +2,7 @@
 
 function printGame($dbConn, $game, $firstRow, $users) {
 	?>
-	<tr class="firstRow <?php if($game->multiplier == 4) echo 'goty'; ?>">
+	<tr class="firstRow <?php if($game->multiplier == 4) echo 'gotw'; ?>">
 		<th class="header-status" colspan="3" id="header-status-<?= $game->id ?>">
 		</th>
 		<th class="header-lineScore">
@@ -75,7 +75,7 @@ function printGame($dbConn, $game, $firstRow, $users) {
 	printRowTeam($dbConn, $game->away, $game, 'away');
 	printRowTeam($dbConn, $game->home, $game, 'home');
 	?>
-	<tr class="<?php if($game->multiplier == 4) echo 'goty'; ?>">
+	<tr class="<?php if($game->multiplier == 4) echo 'gotw'; ?>">
 		<td class="gameStatus" id="gameStatus-<?= $game->id ?>" colspan="17">
 			<?php
 			if(in_array($game->statusID, array(2, 22))) {
@@ -114,7 +114,7 @@ function printGame($dbConn, $game, $firstRow, $users) {
 			?>
 		</td>
 	</tr>
-	<tr class="lastRow <?php if($game->multiplier == 4) echo 'goty'; ?>" id="lastRow-<?= $game->id ?>">
+	<tr class="lastRow <?php if($game->multiplier == 4) echo 'gotw'; ?>" id="lastRow-<?= $game->id ?>">
 		<td class="gameName" id="gameName-<?= $game->id ?>" colspan="9">
 			<?php
 			if(($game->name != '' && $game->name != null) || ($game->customName != '' && $game->customName != null)) {
@@ -148,7 +148,7 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 		$winnerClass = '';
 	}
 	?>
-	<tr class="<?php if($game->multiplier == 4) echo 'goty'; ?>">
+	<tr class="<?php if($game->multiplier == 4) echo 'gotw'; ?>">
 		<td rowspan="2" class="logo <?= $winnerClass ?> rounded-start-4" id="logoCell-<?= $homeAway. '-' . $game->id ?>">
 			<img src="images/teamLogo.php?teamID=<?= $team->id ?>&height=35" id="logo-<?= $homeAway . '-' . $game->id ?>">
 		</td>
@@ -306,7 +306,7 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 		}
 		?>
 	</tr>
-	<tr class="<?php if($game->multiplier == 4) echo 'goty'; ?>">
+	<tr class="<?php if($game->multiplier == 4) echo 'gotw'; ?>">
 		<td class="record <?= $winnerClass ?>" id="record-<?= $homeAway . '-' . $game->id ?>">
 			<?php
 				echo '(' . $team->wins . '-' . $team->losses;
