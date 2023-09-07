@@ -7,7 +7,7 @@ if(!(isset($_POST['email']) || isset($_POST['password']))) {
 	exit;
 }
 
-$query = 'SELECT users.id, users.email, users.password, teams.color, teams.alternateColor, teamLogos.href FROM users LEFT JOIN teams ON users.team = teams.id LEFT JOIN teamLogos ON teamLogos.teamId = users.team WHERE users.email = ? AND teamLogos.is_dark = 1';
+$query = $query = 'SELECT users.id, users.email, users.team, teams.color, teams.alternateColor, teamLogos.href FROM users LEFT JOIN teams ON users.team = teams.id LEFT JOIN teamLogos ON teamLogos.teamId = users.team WHERE users.id = ? AND teamLogos.is_dark = 1';
 $dbConn = sqlConnect();
 
 $rslt = sqlsrv_query($dbConn, $query, array($_POST['email']));
@@ -24,6 +24,7 @@ if(!password_verify($_POST['password'], $user['password'])) {
 
 $_SESSION['uid'] = $user['id'];
 $_SESSION['email'] = $user['email'];
+$_SESSION['team'] = $user['team'];
 $_SESSION['color'] = $user['color'];
 $_SESSION['alternateColor'] = $user['alternateColor'];
 $_SESSION['logo'] = $user['href'];

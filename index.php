@@ -6,7 +6,7 @@ $dbConn = sqlConnect();
 $curWeek = getCurWeek($dbConn);
 $weeksGames = getWeeksGames($dbConn, $curWeek);
 $users = getUsers($dbConn, $curWeek);
-pageHeader('Week '. $curWeek->week);
+pageHeader($dbConn, 'Week '. $curWeek->week);
 if(isset($_SESSION['uid'])) {
 	$GLOBAL['userScore'] = getUserScore($dbConn, $_SESSION['uid'], $curWeek);
 	?>

@@ -6,12 +6,13 @@ $dbConn = sqlConnect();
 
 // If we're already logged in, update session variables and redirect back to main page
 if(isset($_SESSION['uid'])) {
-	$query = 'SELECT users.id, users.email, teams.color, teams.alternateColor, teamLogos.href FROM users LEFT JOIN teams ON users.team = teams.id LEFT JOIN teamLogos ON teamLogos.teamId = users.team WHERE users.id = ? AND teamLogos.is_dark = 1';
+	$query = 'SELECT users.id, users.email, users.team, teams.color, teams.alternateColor, teamLogos.href FROM users LEFT JOIN teams ON users.team = teams.id LEFT JOIN teamLogos ON teamLogos.teamId = users.team WHERE users.id = ? AND teamLogos.is_dark = 1';
 	$queryArray = array($_SESSION['uid']);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	$user = sqlsrv_fetch_array($rslt);
 	$_SESSION['uid'] = $user['id'];
 	$_SESSION['email'] = $user['email'];
+	$_SESSION['team'] = $user['team'];
 	$_SESSION['color'] = $user['color'];
 	$_SESSION['alternateColor'] = $user['alternateColor'];
 	$_SESSION['logo'] = $user['href'];
@@ -19,7 +20,7 @@ if(isset($_SESSION['uid'])) {
 	exit;
 }
 
-pageHeader('Log In');
+pageHeader($dbConn, 'Log In');
 ?>
 <script src="js/login.js"></script>
 <div class="row w-75 text-center border-bottom m-3" id="head">

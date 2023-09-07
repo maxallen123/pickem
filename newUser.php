@@ -3,7 +3,7 @@
 require('functions.php');
 if(session_status() == PHP_SESSION_NONE) session_start();
 $dbConn = sqlConnect();
-pageHeader('New User');
+pageHeader($dbConn, 'New User');
 
 ?>
 <script src="js/newUser.js"></script>

@@ -150,7 +150,7 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 	?>
 	<tr class="<?php if($game->multiplier == 4) echo 'goty'; ?>">
 		<td rowspan="2" class="logo <?= $winnerClass ?> rounded-start-4" id="logoCell-<?= $homeAway. '-' . $game->id ?>">
-			<img height="35" width="35" src="<?= getLogo($dbConn, $team->id) ?>" id="logo-<?= $homeAway . '-' . $game->id ?>">
+			<img src="images/teamLogo.php?teamID=<?= $team->id ?>&height=35" id="logo-<?= $homeAway . '-' . $game->id ?>">
 		</td>
 		<td class="rank <?= $winnerClass ?>" id="rank-<?= $homeAway . '-' . $game->id ?>" rowspan="2">
 			<?php
@@ -336,7 +336,19 @@ function printRowTeam($dbConn, $team, $game, $homeAway) {
 	<?php
 }
 
-function pageHeader($pageTitle) {
+function pageHeader($dbConn, $pageTitle) {
+	if(isset($_SESSION['uid'])) {
+		$query = 'SELECT users.id, users.email, users.team, teams.color, teams.alternateColor, teamLogos.href FROM users LEFT JOIN teams ON users.team = teams.id LEFT JOIN teamLogos ON teamLogos.teamId = users.team WHERE users.id = ? AND teamLogos.is_dark = 1';
+		$queryArray = array($_SESSION['uid']);
+		$rslt = sqlsrv_query($dbConn, $query, $queryArray);
+		$user = sqlsrv_fetch_array($rslt);
+		$_SESSION['uid'] = $user['id'];
+		$_SESSION['email'] = $user['email'];
+		$_SESSION['team'] = $user['team'];
+		$_SESSION['color'] = $user['color'];
+		$_SESSION['alternateColor'] = $user['alternateColor'];
+		$_SESSION['logo'] = $user['href'];
+	}
 	if(isset($_SESSION['color'])) {
 		$color = $_SESSION['color'];
 		$altColor = $_SESSION['alternateColor'];
@@ -361,7 +373,7 @@ function pageHeader($pageTitle) {
 						<span class="pickEm">
 							<ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll">
 								<li class="nav-item">
-									<img src="logo.php" height="30px">
+									<img src="images/siteLogo.php?teamID=<?= $_SESSION['team'] ?>&height=30" height="30px">
 									&nbsp&nbspPick 'Em
 								</li>
 								<li class="nav-item dropdown">
@@ -379,7 +391,7 @@ function pageHeader($pageTitle) {
 						if(isset($_SESSION['uid'])) {
 							?>
 							<span class="logOut"><a href="logout.php" class="link-underline link-underline-opacity-0 link-underline-opacity-100-hover" style="color: #<?= $altColor ?>">
-								<img src="<?= $_SESSION['logo'] ?>" height="30px">
+								<img src="images/teamLogo.php?teamID=<?= $_SESSION['team'] ?>&height=30" height="30px">
 								<br>
 								Log Out
 							</a></span>

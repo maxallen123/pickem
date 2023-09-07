@@ -6,7 +6,7 @@ $dbConn = sqlConnect();
 $curWeek = getCurWeek($dbConn);
 $users = getUsers($dbConn, $curWeek);
 
-pageHeader('Live Scoreboard');
+pageHeader($dbConn, 'Live Scoreboard');
 foreach($users as $key => $user) {
 	$users[$key]->liveScoreRecord($dbConn, $curWeek);
 }
