@@ -412,4 +412,118 @@ function pageHeader($dbConn, $pageTitle) {
 	<?php
 }
 
+function printGameNew($dbConn, $game, $users) {
+	?>
+	<div class="col-lg-6">
+		<div id="outerGameWrapper-<?= $game->id ?>" <?php if($game->multiplier == 4) echo 'class="gotw"' ?>>
+			<div class="fullGameBox">
+				<div class="col-4 game">
+					<?php
+					gameHeaderRow($game);
+					printRowTeamNew($dbConn, $game->away, $game, 'away');
+					printRowTeamNew($dbConn, $game->home, $game, 'home');
+					?>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php
+}
+
+function gameHeaderRow($game) {
+	?>
+	<div class="row header-row">
+		<div id="header-status-<?= $game->id ?>" class="header-status col-3">
+		</div>
+		<div class="header-lineScore">
+			1
+		</div>
+		<div class="header-lineScore">
+			2
+		</div>
+		<div class="header-lineScore">
+			3
+		</div>
+		<div class="header-lineScore">
+			4
+		</div>
+		<div id="header-OT-<?= $game->id ?>" class="header-lineScore">
+			<?php
+			if(count($game->away->lineScores) > 4) {
+				echo 'OT (' . count($game->away->lineScores) - 4 . ')';
+			}
+			?>
+		</div>
+		<div class="header-total">
+			T
+		</div>
+		<div class="header-others">
+			Pk'd
+		</div>
+	</div>
+	<?php
+}
+
+function printRowTeamNew($dbConn, $team, $game, $homeAway) {
+	if($game->winnerID == $team->id) {
+		$winnerClass = 'winner-' . $team->id;
+	} else {
+		$winnerClass = '';
+	}
+	?>
+	<div id="teamRow-<?= $game->id ?>-<?= $team->id ?>" class="row gameRow <?= $winnerClass ?>">
+		<div id="logoCell-<?= $game->id ?>-<?= $team->id ?>" class="logo">
+			<img id="logo-<?= $game->id ?>-<?= $team->id ?>" src="images/teamLogo.php?teamID=<?= $team->id ?>&height=30">
+		</div>
+		<div id="rank-<?= $game->id ?>-<?= $team->id ?>" class="rank">
+			<?php
+			if($team->rank != null) {
+				echo $team->rank;
+			}
+			?>
+		</div>
+		<div class="teamName">
+			<div class="upperName">
+				<?= $team->school ?>
+			</div>
+			<div class="lowerRecord">
+				<?php
+				echo '(' . $team->wins . '-' .  $team->losses;
+				if($team->conf->id != 18 && $team->conf->id != 32) {
+					echo ', ' . $team->confWins . '-' . $team->confLosses . ' ' . $team->conf->abbr;
+				}
+				echo ')';
+				?>
+			</div>
+		</div>
+		<?php
+		$teamTotal = null;
+		for($period = 1; $period <= 5; $period++) {
+			?>
+			<div id="lineScore-<?= $game->id ?>-<?= $team->id ?>-<?= $period ?>" class="lineScore">
+				<?php
+				if($period != 5) {
+					if(isset($team->lineScores[$period])) {
+						echo $team->lineScores[$period];
+						$teamTotal += $team->lineScores[$period];
+					}
+				} else {
+					if(isset($team->lineScores[$period])) {
+						$otScore = 0;
+						for($ot = 5; $ot <= count($team->lineScores); $ot++) {
+							$otScore += $team->lineScores[$ot];
+						}
+						echo $otScore;
+						$teamTotal += $otScore;
+					}
+				}
+				?>
+			</div>
+			<?php
+		}
+
+		?>
+	</div>
+	<?php
+}
 ?>
