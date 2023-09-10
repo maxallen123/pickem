@@ -64,6 +64,7 @@ function gameLineScores(game, teamID) {
 
 function winnerCSS(game) {
 	$('#teamRow-' + game['id'] + '-' + game['winnerID']).addClass('winner-' + game['winnerID']);
+	$('#teamLink-' + game['id'] + '-' + game['winnerID']).addClass('winner-' + game['winnerID']);
 }
 
 function updateHeader(game) {

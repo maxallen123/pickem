@@ -79,7 +79,7 @@ function pageHeader($dbConn, $pageTitle) {
 	<?php
 }
 
-function printGame($dbConn, $game, $users, $pickPage) {
+function printGame($dbConn, $game, $pickPage) {
 	?>
 	<div class="col-lg-6">
 		<div id="outerGameWrapper-<?= $game->id ?>" <?php if($game->multiplier == 4) echo 'class="gotw"' ?>>
@@ -92,6 +92,7 @@ function printGame($dbConn, $game, $users, $pickPage) {
 					?>
 				</div>
 				<?php
+				printSpreadBox($game);
 				printInfoBox($game);
 				?>
 			</div>
@@ -164,7 +165,12 @@ function printRowTeam($team, $game, $homeAway, $pickPage) {
 		</div>
 		<div class="teamName">
 			<div id="teamName-<?= $team->id ?>-<?= $game->id ?>" class="upperName">
-				<a class="link-light link-underline link-underline-opacity-100-hover link-underline-opacity-0" href="https://www.espn.com/college-football/team/_/id/<?= $team->id ?>"><?= $team->school ?></a>
+				<a id="teamLink-<?= $game->id ?>-<?= $team->id ?>" class="link-light link-underline link-underline-opacity-100-hover link-underline-opacity-0
+				<?php 
+				if($game->winnerID == $team->id) {
+					echo ' winner-' . $game->winnerID;
+				}
+				?>" href="https://www.espn.com/college-football/team/_/id/<?= $team->id ?>"><?= $team->school ?></a>
 			</div>
 			<div class="lowerRecord">
 				<?php
@@ -180,7 +186,12 @@ function printRowTeam($team, $game, $homeAway, $pickPage) {
 		$teamTotal = null;
 		for($period = 1; $period <= 5; $period++) {
 			?>
-			<div id="lineScore-<?= $game->id ?>-<?= $team->id ?>-<?= $period ?>" class="lineScore">
+			<div id="lineScore-<?= $game->id ?>-<?= $team->id ?>-<?= $period ?>" class="lineScore
+				<?php
+				if($period == 1) {
+					echo 'lineScoreFirst';
+				}
+				?>">
 				<?php
 				if($period != 5) {
 					if(isset($team->lineScores[$period])) {
@@ -210,6 +221,41 @@ function printRowTeam($team, $game, $homeAway, $pickPage) {
 			?>
 			<div id="others-<?= $team->id ?>-<?= $game->id ?>" class="othersPicks">
 				<?= $team->picked ?>
+			</div>
+			<?php
+		}
+		?>
+	</div>
+	<?php
+}
+
+function printSpreadBox($game) {
+	?>
+	<div>
+		<div class="spreadFirstRow">
+			Spd
+		</div>
+		<?php 
+		if($game->spread == 0) {
+			?>
+			<div class="spreadEven">
+				EVEN
+			</div>
+			<?php
+		} else {
+			?>
+			<div class="spreadRow">
+				<?php 
+				if($game->favID == $game->away->id) {
+					echo '-' . number_format($game->spread, 1);
+				}?>
+			</div>
+			<div class="spreadRow">
+				<?php
+				if($game->favID == $game->home->id) {
+					echo '-' . number_format($game->spread, 1);
+				}
+				?>
 			</div>
 			<?php
 		}

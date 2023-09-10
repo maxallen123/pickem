@@ -47,7 +47,7 @@ foreach($weeksGames as $game) {
 	?>
 	<div class="row">
 		<?php
-		printGame($dbConn, $game, $users, 1);
+		printGame($dbConn, $game, 1);
 		if(isset($_SESSION['uid'])) {
 			printGamePicker($dbConn, $game);
 		}

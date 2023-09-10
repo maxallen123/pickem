@@ -181,6 +181,10 @@
 	align-items: center;
 }
 
+.lineScoreFirst {
+	margin-left: auto;
+}
+
 .total {
 	display: flex;
 	width: 25px;
