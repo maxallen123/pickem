@@ -236,7 +236,7 @@ function printSpreadBox($game) {
 			Spd
 		</div>
 		<?php 
-		if($game->spread == 0 || game->spread == null) {
+		if($game->spread == 0 || $game->spread == null) {
 			?>
 			<div class="spreadEven">
 				<?php if($game->spread != null) echo 'EVEN'; ?>
