@@ -164,7 +164,7 @@ function printRowTeam($team, $game, $homeAway, $pickPage) {
 		</div>
 		<div class="teamName">
 			<div id="teamName-<?= $team->id ?>-<?= $game->id ?>" class="upperName">
-				<?= $team->school ?>
+				<a class="link-light link-underline link-underline-opacity-100-hover link-underline-opacity-0" href="https://www.espn.com/college-football/team/_/id/<?= $team->id ?>"><?= $team->school ?></a>
 			</div>
 			<div class="lowerRecord">
 				<?php
