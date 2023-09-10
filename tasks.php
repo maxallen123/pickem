@@ -162,7 +162,7 @@ function loadGamesCurWeek2($forceCheck) {
 	// If either a game might be near, going on, or if it's time for an update
 	if(sqlsrv_has_rows(sqlsrv_query($dbConn[0], $query)) || (round(time() / 60) % $intervalMinutesIdle) == 0 || $forceCheck) {
 		
-		$limit = 300;
+		$limit = 300 + rand(1, 50);
 		$search = array('$year', '$week', '$seasonType', '$limit');
 		$replace = array($curWeek->year, $curWeek->week, $curWeek->seasonType + 1, $limit);
 		$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
