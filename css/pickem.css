@@ -321,6 +321,7 @@
 	text-transform: uppercase;
 	font-weight: bold;
 	border: 0px;
+	background-color: #252a2e;
 }
 
 .selectPick:disabled {
