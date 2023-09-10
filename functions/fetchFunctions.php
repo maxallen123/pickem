@@ -77,6 +77,7 @@ function getWeeksGames($dbConn, $curWeek) {
 				OR (games.weekID = ? AND forceInclude = 1) ORDER BY startDate ASC';
 	$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->startDate, $curWeek->weekID);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
+	print_r(sqlsrv_errors());
 	if(sqlsrv_has_rows($rslt)) {
 		$games = array();
 		while($gameArray = sqlsrv_fetch_array($rslt)) {

@@ -213,6 +213,21 @@ class venueObj {
 		$this->state = $venueArray['state'];
 		$this->country = $venueArray['country'];
 	}
+
+	function stateCountry() {
+		if($this->country == 'US') {
+			return $this->state;
+		} else {
+			switch($this->country) {
+				case 'IE':
+					return 'Ireland';
+				case 'BS':
+					return 'Bahamas';
+				case 'AU':
+					return 'Australia';
+			}
+		}
+	}
 }
 
 class confObj {

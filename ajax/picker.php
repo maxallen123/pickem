@@ -4,6 +4,13 @@ include('../functions.php');
 $dbConn = sqlConnect();
 header('Content-type: application/json');
 if(session_status() == PHP_SESSION_NONE) session_start();
+if(isset($argv[1])) {
+	$_POST['function'] = $argv[1];
+}
+if(isset($argv[2])) {
+	$_POST['userID'] = $argv[2];
+}
+
 
 switch($_POST['function']) {
 	case 'setPick':
@@ -67,8 +74,9 @@ function compare($dbConn) {
 	$query = 'SELECT games.id, picks.teamID, games.winnerID, games.multiplier, games.jokeGame
 		FROM games 
 		LEFT JOIN picks ON picks.gameID = games.id AND picks.userID = ?
-		WHERE (weekID = ? AND openSpread <= ?) OR forceInclude = 1 ORDER by startDate ASC';
-	$queryArray = array($userID, $curWeek->weekID, $GLOBALS['threshold']);
+		WHERE (games.weekID = ? AND openSpread <= ? AND (games.openSpreadTime <= DATEADD(' . $GLOBALS['graceUnit'] . ',' . $GLOBALS['graceOffset'] . ', ?) OR games.openSpreadTime IS NULL)) 
+		OR (games.weekID = ? AND forceInclude = 1) ORDER BY startDate ASC';
+	$queryArray = array($userID, $curWeek->weekID, $GLOBALS['threshold'], $curWeek->startDate, $curWeek->weekID);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	$picks = array();
 	if(sqlsrv_has_rows($rslt)) {

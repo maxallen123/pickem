@@ -1,48 +1,111 @@
-.firstRow {
+.container {
+	max-width: 100%;
+	margin: 0px;
+	padding: 0px;
+}
+
+.row {
+	margin: 0px;
+	padding: 10px;
+}
+
+.col-lg-6 {
+	padding: 0px;
+}
+
+.fullGameBox {
+	display: flex;
+	margin: 0px;
+}
+
+.game {
+	width: 70%;
+	margin: 0;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.gotw {
+	background: #140330;
+	border-radius: 1rem;
+}
+
+.header-row {
 	height: 30px;
+	overflow: hidden;
+	width: 100%;
+	margin: 0;
+	padding: 0;
 }
 
 .header-status {
+	display: flex;
+	flex: 1;
 	font-variant: small-caps;
-	font-size: 14px;
-	vertical-align: bottom;
+	font-size: 12px;
+	justify-content: left;
+	align-items: end;
+	font-weight: bold;
+	padding: 0 5px 5px 5px;
 }
 
 .header-lineScore {
+	display: flex;
+	width: 20px;
+	height: 30px;
+	justify-content: right;
+	align-items: end;
 	font-size: 12px;
-	width: 25;
-	text-align: end;
-	vertical-align: bottom;
+	padding: 0;
+	font-weight: bold;
+	padding: 0 5px 5px 5px;
+	line-height: 1em;
 }
 
-.header-spread {
+.header-total {
+	display: flex;
+	width: 25px;
+	height: 30px;
+	justify-content: right;
+	align-items: end;
 	font-size: 12px;
-	vertical-align: bottom;
-	text-align: center;
+	padding: 0;
+	font-weight: bold;
+	padding: 0 5px 5px 5px;
 }
 
 .header-others {
+	display: flex;
+	height: 30px;
+	width: 30px;
+	padding: 0;
 	font-size: 12px;
-	text-align: center;
-	vertical-align: bottom;
+	align-items: end;
+	justify-content: center;
+	font-weight: bold;
+	padding: 0 5px 5px 5px;
 }
 
-.header-pick {
-	font-size: 14px;
-	text-align: center;
-	vertical-align: bottom;
-}
-
-.header-score {
-	font-size: 14px;
-	text-align: center;
-	vertical-align: bottom;
+.compareCell {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	margin-left: auto;
+	margin-right: 0;
+	padding-bottom: 0px;
 }
 
 .header-compare {
+	display: flex;
+	width: 100%;
 	font-size: 12px;
-	text-align: center;
-	vertical-align: bottom;
+	justify-content: center;
+	align-items: end;
+}
+
+.selectCompareCell {
+	display: flex;
+	width: 100%;
 }
 
 .selectCompare {
@@ -51,83 +114,241 @@
 	padding: 0.125rem;
 }
 
+.gameRow {
+	height: 45px;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+}
+
 .logo {
-	text-align: center;
-	vertical-align: middle;
+	display: flex;
+	height: 45px;
+	width: 50px;
+	padding: 0;
+	justify-content: center;
+	align-items: center;
 }
 
 .rank {
-	text-align: end;
+	display: flex;
+	height: 45px;
+	width: 20px;
+	padding: 3px;
+	justify-content: right;
+	align-items: center;
 	font-size: 12px;
 	font-weight: bold;
 }
 
 .teamName {
-	font-size: 14px;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	width: calc(100% - 225px);
+	height: 45px;
 	font-variant: small-caps;
-	font-weight: bold;
+	align-items: center;
+	padding: 0;
 }
 
-.record {
+.upperName {
+	display: flex;
+	width: 100%;
+	overflow: clip;
+	height: calc(45px / 2);
+	font-size: 14px;
+	font-weight: bold;
+	align-content: end;
+}
+
+.lowerRecord {
+	display: flex;
+	width: 100%;
+	height: calc(45px / 2);
 	font-size: 11px;
 	font-weight: bold;
+	align-items: start;
 }
 
 .lineScore {
-	font-size: 14px;
-	text-align: end;
+	display: flex;
+	width: 20px;
+	height: 45px;
+	padding: 5px;
+	font-size: 13px;
+	justify-content: right;
+	align-items: center;
 }
 
 .total {
+	display: flex;
+	width: 25px;
+	height: 45px;
 	font-size: 16px;
-	text-align: end;
+	justify-content: right;
+	align-items: center;
 	font-weight: bold;
-}
-
-.spread {
-	font-size: 14px;
-	text-align: center;
-	font-weight: bold;
+	padding: 5px;
 }
 
 .othersPicks {
-	font-size: 12px;
-	text-align: center;
+	display: flex;
+	width: 30px;
+	height: 45px;
+	font-size: 14px;
+	justify-content: center;
+	align-items: center;
 	font-weight: bold;
+	padding: 5px;
+}
+
+.spreadFirstRow {
+	display: flex;
+	height: 30px;
+	font-size: 12px;
+	font-weight: bold;
+	align-items: end;
+	padding-bottom: 5px;
+	justify-content: center;
+}
+
+.spreadRow {
+	display: flex;
+	height: 45px;
+	font-size: 14px;
+	align-items: center;
+	justify-content: center;
+	width: 33px;
+}
+
+.spreadEven {
+	display: flex;
+	height: 90px;
+	font-size: 14px;
+	align-items: center;
+	justify-content: center;
+	width: 33px;
+}
+
+.infoBox {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	width: 100%;
+	margin: 20px 10px 20px 10px;
 }
 
 .venueName {
 	font-size: 14px;
+	height: auto;
+	width: 100%;
 }
 
 .cityState {
 	font-size: 12px;
+	height: auto;
+	width: 100%;
+}
+
+.gameLink {
+	display: flex;
+	align-items: end;
 }
 
 .espnLink {
+	font-size: 12px;
+}
+
+.gameStatus {
+	font-variant: small-caps;
 	font-size: 14px;
+	vertical-align: bottom;
+	font-weight: bold;
+	padding-left: 20px;
+}
+
+.gameName {
+	font-size: 14px;
+	font-variant: small-caps;
+	padding-left: 20px;
+}
+
+.lastRow {
+	padding-bottom: 5px;
+}
+
+.pickRow {
+	height: 100%;
+	min-height: 75px;
+}
+
+.userSelectCell {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 50%;
+}
+
+.selectLogoCell {
+	display: flex;
+	width: 50px;
+	align-items: center;
+	justify-content: center;
+	padding: 10px;
+}
+
+.selectCell {
+	display: flex;
+	width: calc(100% - 100px);
+	align-items: center;
+	justify-content: center;
+}
+
+.userSelectCell {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0px;
 }
 
 .selectPick {
 	font-size: 14px;
 	text-transform: uppercase;
 	font-weight: bold;
+	border: 0px;
+}
+
+.selectPick:disabled {
+	appearance: none;
+	background-image: none;
+}
+
+.othersSelectPick:disabled{
+	font-size: 14px;
+	text-transform: uppercase;
+	font-weight: bold;
+	border: 0px;
+	appearance: none;
+	background-image: none;
+	background-color: var(--bs-body-bg);
 }
 
 .score {
+	display: flex;
 	font-size: 14px;
-	text-align: center;
-	width: 46px;
+	justify-content: left;
+	align-items: center;
+	width: 50px;
+	padding: 10px;
 }
 
 .scoreWinner {
 	font-weight: bold;
 }
 
-.lastRow {
-	height: 27px;
-	font-size: 14px;
-	font-variant: small-caps;
+.hidden {
+	display: none;
 }
 
 .pickEm {
@@ -141,17 +362,11 @@
 
 .possession::after {
 	content: '⬬';
+	padding-left: 5px;
 }
 
 .redzone::after {
 	color: red;
-}
-
-.gameStatus {
-	font-variant: small-caps;
-	font-size: 14px;
-	vertical-align: bottom;
-	font-weight: bold;
 }
 
 .pickEm {
@@ -168,6 +383,3 @@
 	text-align: center !important;
 }
 
-.gotw {
-	background: #140330;
-}

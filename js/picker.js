@@ -22,21 +22,31 @@ function setPick(gameID) {
 		datatype: 'json',
 		success:
 			function () {
+				if(selectVal != -1) {
+					$('#logoCell-' + gameID).html('<img src="images/teamLogo.php?teamID=' + selectVal + '&height=30">')
+				} else {
+					$('#logoCell-' + gameID).html('');
+				}
 				updatePicks();
 			}
 	});
 }
 
-function gameLineScores(game, homeAway) {
+function gameLineScores(game, teamID) {
 	var totalScore = 0;
 	var otScore = 0;
 	var ot = 0;
 	var gameStarted = 0;
+	if(teamID == game['home']['id']) {
+		var homeAway = 'home';
+	} else {
+		var homeAway = 'away';
+	}
 	$.each(game[homeAway]['lineScores'], function(period, periodScore) {
 		gameStarted = 1;
 		totalScore += periodScore;
 		if(period <= 4) {
-			var boxScore = '#lineScore-' + homeAway + '-' + period + '-' + game['id'];
+			var boxScore = '#lineScore-' + game['id'] + '-' + teamID + '-' + period;
 			$(boxScore).text(periodScore);
 		} else {
 			ot++;
@@ -44,32 +54,16 @@ function gameLineScores(game, homeAway) {
 		}
 	});
 	if(ot > 0) {
-		$('#otScore-' + game['id']).text('OT(' + ot + ')');
-		$('#lineScore-' + homeAway + '-5-' + game['id']).text(otScore);
+		$('#header-OT-' + game['id']).text('OT (' + ot + ')');
+		$('#lineScore-' + game['id'] + '-' + teamID + '-5').text(otScore);
 	}
 	if(gameStarted) {
-		$('#total-' + homeAway + '-' + game['id']).text(totalScore);
+		$('#total-' + teamID + '-' + game['id']).text(totalScore);
 	}
 }
 
 function winnerCSS(game) {
-	if(game['winnerID'] == game['home']['id']) {
-		var homeAway = 'home';
-	} else {
-		var homeAway = 'away';
-	}
-	$('#logoCell-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-	$('#rank-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-	$('#teamName-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-	$('#schoolLink-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-	$('#record-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-	$('#lineScore-' + homeAway + '-1-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-	$('#lineScore-' + homeAway + '-2-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-	$('#lineScore-' + homeAway + '-3-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-	$('#lineScore-' + homeAway + '-4-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-	$('#lineScore-' + homeAway + '-5-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-	$('#total-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
-	$('#others-' + homeAway + '-' + game['id']).addClass('winner-' + game[homeAway]['id']);
+	$('#teamRow-' + game['id'] + '-' + game['winnerID']).addClass('winner-' + game['winnerID']);
 }
 
 function updateHeader(game) {
@@ -100,17 +94,22 @@ function updateHeader(game) {
 	if(game['statusID'] == 23) {
 		$(statusHeader).text('Halftime');
 	}
+	if(game['statusID'] == 7) {
+		$(statusHeader).text('Delayed');
+	}
 }
 
 function updateGameStatus(game) {
 	var gameStatusCell = '#gameStatus-' + game['id'];
 	if([2, 22].includes(game['statusID'])) {
 		if(game['possession'] == game['home']['id']) {
-			var hasBall = 'home';
-			var notBall = 'away';
+			var hasBall = game['home']['id'];
+			var hasBallSide = 'home';
+			var notBall = game['away']['id'];
 		} else {
-			var hasBall = 'away';
-			var notBall = 'home';
+			var hasBall = game['away']['id'];
+			var hasBallSide = 'away';
+			var notBall = game['home']['id'];
 		}
 		var hasBallNameCell = '#teamName-' + hasBall + '-' + game['id'];
 		var notBallNameCell = '#teamName-' + notBall + '-' + game['id'];
@@ -135,19 +134,19 @@ function updateGameStatus(game) {
 		if(game['down'] > 0) {
 			var gameStatus = ordinal_suffix_of(game['down']) + ' and ' + toGo + ' at ' + fieldSide + ' ' + yardLine;
 		} else {
-			gameStatus = 'Kickoff ' + game[hasBall]['abbr'];
+			gameStatus = 'Kickoff ' + game[hasBallSide]['abbr'];
 		}
 		$(gameStatusCell).text(gameStatus);
 
-		if((hasBall == 'home' && game['yardLine'] >= 80) || (hasBall == 'away' && game['yardLine'] <= 20)) {
+		if((hasBall == game['home']['id'] && game['yardLine'] >= 80) || (hasBall == game['away']['id'] && game['yardLine'] <= 20)) {
 			$(hasBallNameCell).addClass('redzone');
 		} else {
 			$(hasBallNameCell).removeClass('redzone');
 		}
 	} else {
 		$(gameStatusCell).text('');
-		$('#teamName-home-' + game['id']).removeClass(['possession', 'redzone']);
-		$('#teamName-away-' + game['id']).removeClass(['possession', 'redzone']);
+		$('#teamName-' + game['home']['id'] + '-' + game['id']).removeClass(['possession', 'redzone']);
+		$('#teamName-' + game['away']['id'] + '-' + game['id']).removeClass(['possession', 'redzone']);
 	}
 }
 
@@ -166,13 +165,15 @@ function updatePicks() {
 					var date = new Date(game['date']['date'] + 'Z');
 					var curDate = new Date();
 					var selectID = '#pick-' + game['id'];
-					var othersAway = '#others-away-' + game['id'];
-					var othersHome = '#others-home-' + game['id'];
+					var awayID = game['away']['id'];
+					var homeID = game['home']['id'];
+					var othersAway = '#others-' + awayID + '-' + game['id'];
+					var othersHome = '#others-' + homeID + '-' + game['id'];
 					var score = '#score-' + game['id'];
 
 					// Update game linescores
-					gameLineScores(game, 'home');
-					gameLineScores(game, 'away');
+					gameLineScores(game, homeID);
+					gameLineScores(game, awayID);
 
 					// Apply CSS if game is over
 					if(game['completed']) {
@@ -226,8 +227,14 @@ function compare() {
 				function (returnVal) {
 					var curScore = returnVal['score'];
 					$.each(returnVal['picks'], function(gameID, pick) {
+						compareLogo = '#logoCompareCell-' + pick['gameID'];
 						compareID = '#compare-' + pick['gameID'];
 						compareScore = '#compareScore-' + pick['gameID'];
+						if(pick['pickID'] != -1) {
+							$(compareLogo).html('<img src="images/teamLogo.php?teamID=' + pick['pickID'] + '&height=30">')
+						} else {
+							$(compareLogo).html('');
+						}
 						$(compareID).val(pick['pickID']);
 						if(userID != -1) {
 							if(pick['winnerID'] != null) {
@@ -244,6 +251,7 @@ function compare() {
 								}
 							}
 						} else {
+							$(compareLogo).html('');
 							$(compareScore).text('');
 							$(compareScore).removeClass('scoreWinner');
 							$(compareID).removeClass('loserSelect');
