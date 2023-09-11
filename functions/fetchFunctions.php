@@ -63,7 +63,8 @@ function getWeeksGames($dbConn, $curWeek) {
 				(SELECT COUNT(id) FROM games AS awayWinGames WHERE awayWinGames.weekID IN (SELECT id FROM weeks WHERE year = weekPresent.year) AND awayWinGames.winnerID = games.awayID AND awayWinGames.startDate < games.startDate) AS awayWins,
 				(SELECT COUNT(id) FROM games AS awayLossGames WHERE awayLossGames.weekID IN (SELECT id FROM weeks WHERE year = weekPresent.year) AND awayLossGames.loserID = games.awayID AND awayLossGames.startDate < games.startDate) AS awayLosses,
 				(SELECT COUNT(id) FROM games AS awayConfWinGames WHERE awayConfWinGames.weekID IN (SELECT id FROM weeks WHERE year = weekPresent.year) AND awayConfWinGames.winnerID = games.awayID AND awayConfWinGames.startDate < games.startDate AND awayConfWinGames.isConference = 1) AS awayConfWins,
-				(SELECT COUNT(id) FROM games AS awayConfLossGames WHERE awayConfLossGames.weekID IN (SELECT id FROM weeks WHERE year = weekPresent.year) AND awayConfLossGames.loserID = games.awayID AND awayConfLossGames.startDate < games.startDate AND awayConfLossGames.isConference = 1) AS awayConfLosses
+				(SELECT COUNT(id) FROM games AS awayConfLossGames WHERE awayConfLossGames.weekID IN (SELECT id FROM weeks WHERE year = weekPresent.year) AND awayConfLossGames.loserID = games.awayID AND awayConfLossGames.startDate < games.startDate AND awayConfLossGames.isConference = 1) AS awayConfLosses,
+				rivalries.teamAID, rivalries.name AS rivalryName, rivalries.trophy
 				FROM games 
 				LEFT JOIN teams AS home ON games.homeID = home.id
 				LEFT JOIN conferences AS homeConference ON home.conferenceID = homeConference.id
@@ -73,12 +74,14 @@ function getWeeksGames($dbConn, $curWeek) {
 				LEFT JOIN ranks AS awayRanks ON awayRanks.weekID = games.weekID AND awayRanks.teamID = games.awayID
 				LEFT JOIN venues AS venue ON games.venueID = venue.id
 				LEFT JOIN weeks AS weekPresent ON games.weekID = weekPresent.id
+				LEFT JOIN rivalries ON (games.homeID = rivalries.teamAID AND games.awayID = rivalries.teamBID) OR (games.homeID = rivalries.teamBID AND games.awayID = rivalries.teamAID)
 				WHERE 
 				((games.weekID = ? AND openSpread <= ? AND (games.openSpreadTime <= DATEADD(' . $GLOBALS['graceUnit'] . ',' . $GLOBALS['graceOffset'] . ', ?) OR games.openSpreadTime IS NULL)) 
 				AND (home.isFBS = 1 OR away.isFBS = 1))
 				OR (games.weekID = ? AND forceInclude = 1)
+				OR (rivalries.teamAID IS NOT NULL AND games.weekID = ?)
 				ORDER BY startDate ASC';
-	$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->startDate, $curWeek->weekID);
+	$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->startDate, $curWeek->weekID, $curWeek->weekID);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	print_r(sqlsrv_errors());
 	if(sqlsrv_has_rows($rslt)) {
@@ -150,13 +153,13 @@ function getUsers($dbConn, $curWeek) {
 // Get Array of game IDs. $all == 1 means all games, 0 means just pick games
 function getWeeksGameIDs($dbConn, $curWeek, $all) {
 	$gameIDArray = array();
-	$query = 'SELECT id FROM games WHERE ';
+	$query = 'SELECT id FROM games LEFT JOIN rivalries ON (games.homeID = rivalries.teamAID AND games.awayID = rivalries.teamBID) OR (games.homeID = rivalries.teamBID AND games.awayID = rivalries.teamAID) WHERE ';
 	if($all) {
 		$query .= 'weekID = ?';
 		$queryArray = array($curWeek->weekID);
 	} else {
-		$query .= '(weekID = ? AND openSpread <= ?) OR (forceInclude = 1 AND weekID = ?)';
-		$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->weekID);
+		$query .= '(weekID = ? AND openSpread <= ?) OR (forceInclude = 1 AND weekID = ?) OR (rivalries.teamAID IS NOT NULL AND weekID = ?)';
+		$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->weekID, $curWeek->weekID);
 	}
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	if(sqlsrv_has_rows($rslt)) {
@@ -237,7 +240,8 @@ function getAllGamesConfWeek($dbConn, $curWeek, $confID) {
 		(SELECT COUNT(id) FROM games AS awayWinGames WHERE awayWinGames.weekID IN (SELECT id FROM weeks WHERE year = weekPresent.year) AND awayWinGames.winnerID = games.awayID AND awayWinGames.startDate < games.startDate) AS awayWins,
 		(SELECT COUNT(id) FROM games AS awayLossGames WHERE awayLossGames.weekID IN (SELECT id FROM weeks WHERE year = weekPresent.year) AND awayLossGames.loserID = games.awayID AND awayLossGames.startDate < games.startDate) AS awayLosses,
 		(SELECT COUNT(id) FROM games AS awayConfWinGames WHERE awayConfWinGames.weekID IN (SELECT id FROM weeks WHERE year = weekPresent.year) AND awayConfWinGames.winnerID = games.awayID AND awayConfWinGames.startDate < games.startDate AND awayConfWinGames.isConference = 1) AS awayConfWins,
-		(SELECT COUNT(id) FROM games AS awayConfLossGames WHERE awayConfLossGames.weekID IN (SELECT id FROM weeks WHERE year = weekPresent.year) AND awayConfLossGames.loserID = games.awayID AND awayConfLossGames.startDate < games.startDate AND awayConfLossGames.isConference = 1) AS awayConfLosses
+		(SELECT COUNT(id) FROM games AS awayConfLossGames WHERE awayConfLossGames.weekID IN (SELECT id FROM weeks WHERE year = weekPresent.year) AND awayConfLossGames.loserID = games.awayID AND awayConfLossGames.startDate < games.startDate AND awayConfLossGames.isConference = 1) AS awayConfLosses,
+		rivalries.teamAID, rivalries.name AS rivalryName, rivalries.trophy
 		FROM games 
 		LEFT JOIN teams AS home ON games.homeID = home.id
 		LEFT JOIN conferences AS homeConference ON home.conferenceID = homeConference.id
@@ -247,6 +251,7 @@ function getAllGamesConfWeek($dbConn, $curWeek, $confID) {
 		LEFT JOIN ranks AS awayRanks ON awayRanks.weekID = games.weekID AND awayRanks.teamID = games.awayID
 		LEFT JOIN venues AS venue ON games.venueID = venue.id
 		LEFT JOIN weeks AS weekPresent ON games.weekID = weekPresent.id
+		LEFT JOIN rivalries ON (games.homeID = rivalries.teamAID AND games.awayID = rivalries.teamBID) OR (games.homeID = rivalries.teamBID AND games.awayID = rivalries.teamAID)
 		WHERE
 		games.weekID = ?';
 	$queryArray = array($curWeek->weekID);
@@ -257,7 +262,7 @@ function getAllGamesConfWeek($dbConn, $curWeek, $confID) {
 		$query .= ' AND (home.conferenceID = ? OR away.conferenceID = ?)';
 		array_push($queryArray, $confID, $confID);
 	}
-	$query .= 'ORDER BY games.statusID ASC';
+	$query .= ' ORDER BY games.statusID ASC';
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	print_r(sqlsrv_errors());
 	if(sqlsrv_has_rows($rslt)) {

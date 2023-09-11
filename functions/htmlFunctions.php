@@ -330,16 +330,11 @@ function gameStatus($game) {
 }
 
 function gameName($game) {
-	if(($game->name != '' && $game->name != null) || ($game->customName != '' && $game->customName != null)) {
+	$gameName = $game->gameNameBar();
+	if($gameName != '') {
 		?>
 		<div class="gameName lastRow">
-			<?= $game->name ?>
-			<?php
-			if(($game->name != '' && $game->name != null) && ($game->customName != '' && $game->customName != null)) {
-				echo ' - ';
-			}
-			?>
-			<?= $game->customName ?>
+			<?= $gameName ?>
 		</div>
 		<?php
 	}

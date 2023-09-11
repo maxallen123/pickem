@@ -46,6 +46,9 @@ class gameObj {
 	public $pick = null;
 	public $multiplier;
 	public $jokeGame;
+	public $isRivalry;
+	public $rivalryName;
+	public $rivalryTrophy;
 
 	function __construct($gameArray, $curWeek, $dbConn) {
 		$this->id = $gameArray['id'];
@@ -149,6 +152,42 @@ class gameObj {
 		}
 		$this->multiplier = $gameArray['multiplier'];
 		$this->jokeGame = $gameArray['jokeGame'];
+		if($gameArray['teamAID'] != null) {
+			$this->isRivalry = 1;
+			$this->rivalryName = $gameArray['rivalryName'];
+			$this->rivalryTrophy = $gameArray['trophy'];
+		} else {
+			$this->isRivalry = 0;
+			$this->rivalryName = null;
+			$this->rivalryTrophy = null;
+		}
+	}
+
+	public function gameNameBar() {
+		$nameString = '';
+		if($this->isRivalry) {
+			if($this->rivalryName != null) {
+				$gameString .= $this->rivalryName;
+			} else {
+				$gameString .= 'Rivalry Game';
+			}
+			if($this->rivalryTrophy != null) {
+				$gameString .= ' - ' . $this->rivalryTrophy;
+			}
+		}
+		if($this->name != null) {
+			if($gameString != '') {
+				$gameString .= ' - ';
+			}
+			$gameString .= $this->name;
+		}
+		if($this->customName != null) {
+			if($gameString != '') {
+				$gameString .= ' - ';
+			}
+			$gameString .= $this->customName;
+		}
+		return $gameString;
 	}
 }
 

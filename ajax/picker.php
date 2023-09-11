@@ -74,9 +74,10 @@ function compare($dbConn) {
 	$query = 'SELECT games.id, picks.teamID, games.winnerID, games.multiplier, games.jokeGame
 		FROM games 
 		LEFT JOIN picks ON picks.gameID = games.id AND picks.userID = ?
+		LEFT JOIN rivalries ON (games.homeID = rivalries.teamAID AND games.awayID = rivalries.teamBID) OR (games.homeID = rivalries.teamBID AND games.awayID = rivalries.teamAID)
 		WHERE (games.weekID = ? AND openSpread <= ? AND (games.openSpreadTime <= DATEADD(' . $GLOBALS['graceUnit'] . ',' . $GLOBALS['graceOffset'] . ', ?) OR games.openSpreadTime IS NULL)) 
-		OR (games.weekID = ? AND forceInclude = 1) ORDER BY startDate ASC';
-	$queryArray = array($userID, $curWeek->weekID, $GLOBALS['threshold'], $curWeek->startDate, $curWeek->weekID);
+		OR (games.weekID = ? AND forceInclude = 1) OR (games.weekID = ? AND rivalries.teamAID IS NOT NULL) ORDER BY startDate ASC';
+	$queryArray = array($userID, $curWeek->weekID, $GLOBALS['threshold'], $curWeek->startDate, $curWeek->weekID, $curWeek->weekID);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	$picks = array();
 	if(sqlsrv_has_rows($rslt)) {

@@ -91,11 +91,11 @@ function loadVenues() {
 }
 
 function loadRanks($year, $seasonType, $week) {
-	$dbConn = sqlConnect();
+	$dbConn = sqlConnectAll();
 	$context = httpRequestOpts();
-	$teams = getTeams($dbConn);
+	$teams = getTeams($dbConn[0]);
 
-	$weekArray = getWeekArray($dbConn, $year, $seasonType, $week);
+	$weekArray = getWeekArray($dbConn[0], $year, $seasonType, $week);
 
 	if($seasonType == 1) {
 		$seasonString = 'regular';
@@ -117,33 +117,9 @@ function loadRanks($year, $seasonType, $week) {
 	}
 	foreach($ranks[0]->polls as $poll) {
 		if($poll->poll == $selectedPoll) {
-			loadRank($dbConn, $poll, $weekArray, $teams);
-		}
-	}
-}
-
-function loadGamesCurWeek() {
-	$dbConn = sqlConnect();
-	$GLOBALS['graceOffset'] = -6;
-	$GLOBALS['graceUnit'] = 'hour';
-	$curWeek = getCurWeek($dbConn);
-	$limit = 300;
-	
-	$search = array('$year', '$week', '$seasonType', '$limit');
-	$replace = array($curWeek->year, $curWeek->week, $curWeek->seasonType + 1, $limit);
-	$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
-
-	do {
-		$scoreboardStr = @file_get_contents($searchString);
-		$limit++;
-	} while(strlen($scoreboardStr) < 1000);
-	$scoreboard = json_decode($scoreboardStr);
-	
-	$games = $scoreboard->events;
-	foreach($games as $game) {
-		loadGameScoreboard($dbConn, $game, $curWeek);
-		if($game->status->type->id == 1) {
-			updateESPNSpread($dbConn, $game->id);
+			foreach($dbConn as $instance) {
+				loadRank($instance, $poll, $weekArray, $teams);
+			}
 		}
 	}
 }
