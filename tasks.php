@@ -188,6 +188,28 @@ function loadGamesCurWeek2($forceCheck) {
 	}
 }
 
+function loadRanksESPN() {
+	$dbConn = sqlConnectAll();
+	$curWeek = getCurWeek($dbConn[0]);
+
+	$ranks = json_decode(@file_get_contents($GLOBALS['espnRankingURL']));
+
+	$selectedPoll = 'AP Top 25';
+	foreach($ranks->rankings as $poll) {
+		if($poll->name == 'Playoff Committee Rankings') {
+			$selectedPoll = 'Playoff Committee Rankings';
+		}
+	}
+
+	foreach($ranks->rankings as $poll) {
+		if($poll->name == $selectedPoll) {
+			foreach($dbConn as $instance) {
+				loadRankESPN($instance, $poll, $curWeek);
+			}
+		}
+	}
+}
+
 if(count($argv) > 1) {
 	switch($argv[1]) {
 		case 'loadTeams':
@@ -230,14 +252,9 @@ if(count($argv) > 1) {
 			break;
 
 		case 'loadRanks':
-			if(isset($argv[2]) && isset($argv[3]) && isset($argv[4])) {
-				loadRanks($argv[2], $argv[3], $argv[4]);
-				break;
-			} else {
-				echo 'Year/SeasonType/Date not set';
-				break;
-			}
-
+			loadRanksESPN();
+			break;
+			
 		case 'loadGamesCurWeek':
 			if(isset($argv[2])) {
 				$forceCheck = 1;

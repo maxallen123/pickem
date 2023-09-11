@@ -479,4 +479,16 @@ function updateESPNSpread2($dbConn, $gameID, $game) {
 		sqlsrv_query($dbConn, $query, $queryArray);
 	}
 }
+
+function loadRankESPN($dbConn, $poll, $curWeek) {
+	$queries = array();
+	$queries = setLoadRanksQueries();
+	foreach($poll->ranks as $rank) {
+		$checkArray = array($curWeek->weekID, $rank->team->id);
+		if(!sqlsrv_has_rows(sqlsrv_query($dbConn, $queries['check'], $checkArray))) {
+			$newArray = array($curWeek->weekID, $rank->team->id, $rank->current);
+			sqlsrv_query($dbConn, $queries['new'], $newArray);
+		}
+	}
+}
 ?>
