@@ -182,7 +182,7 @@ function loadGamesYear($year) {
 		echo $week->weekID . "\n";
 		while($success == 0) {
 			foreach($confArray as $conf) {
-				$limit = 500 + rand(1, 50);
+				$limit = 300 + rand(1, 50);
 				$search = array('$year', '$week', '$seasonType', '$limit', '$conf');
 				do {
 					$replace = array($week->year, $week->week, $week->seasonType + 1, $limit, $conf);
@@ -190,7 +190,7 @@ function loadGamesYear($year) {
 					echo "Pulling data, limit: " . $limit . ", Conf ID: " . $conf . "\n";
 					$scoreboardStr = @file_get_contents($searchString);
 					$limit++;
-				} while(strlen($scoreboardStr) < 1000 && $limit < 575);
+				} while(strlen($scoreboardStr) < 1000 && $limit < 375);
 				
 				if(strlen($scoreboardStr) > 1000) {
 					$success = 1;
