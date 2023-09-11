@@ -180,7 +180,7 @@ function loadGamesYear($year) {
 		$success = 0;
 		$confArray = array(90);
 		echo $week->weekID . "\n";
-		while($success == 0 && $week != 17) {
+		while($success == 0 && $week->weekID != 17) {
 			foreach($confArray as $conf) {
 				$limit = 300 + rand(1, 50);
 				$search = array('$year', '$week', '$seasonType', '$limit', '$conf');
