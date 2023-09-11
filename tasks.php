@@ -187,7 +187,7 @@ function loadGamesYear($year) {
 				do {
 					$replace = array($week->year, $week->week, $week->seasonType + 1, $limit, $conf);
 					$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
-					echo "Pulling data, limit: " . $limit . "\n";
+					echo "Pulling data, limit: " . $limit . ", Conf ID: " . $conf . "\n";
 					$scoreboardStr = @file_get_contents($searchString);
 					$limit++;
 				} while(strlen($scoreboardStr) < 1000 && $limit < 575);
