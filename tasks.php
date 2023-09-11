@@ -60,25 +60,6 @@ function loadGames($year, $seasonType, $week) {
 	}
 }
 
-function loadYear($year) {
-	$dbConn = sqlConnect();
-	
-	$query = 'SELECT * FROM weeks WHERE year = ?';
-	$weekRslt = sqlsrv_query($dbConn, $query, array($year));
-	if(sqlsrv_has_rows($weekRslt)) {
-		$weeks = array();
-		while($weekArray = sqlsrv_fetch_array($weekRslt)) {
-			array_push($weeks, new weekObj($weekArray));
-		}
-
-		foreach($weeks as $week) {
-			print_r($week);
-			loadGames($week->year, $week->seasonType, $week->week);
-			loadRanks($week->year, $week->seasonType, $week->week);
-		}
-	}
-}
-
 function loadVenues() {
 	$dbConn = sqlConnect();
 	$context = httpRequestOpts();
@@ -87,40 +68,6 @@ function loadVenues() {
 
 	foreach($venues as $venue) {
 		loadVenue($dbConn, $venue);
-	}
-}
-
-function loadRanks($year, $seasonType, $week) {
-	$dbConn = sqlConnectAll();
-	$context = httpRequestOpts();
-	$teams = getTeams($dbConn[0]);
-
-	$weekArray = getWeekArray($dbConn[0], $year, $seasonType, $week);
-
-	if($seasonType == 1) {
-		$seasonString = 'regular';
-	} else {
-		$seasonString = 'postseason';
-	}
-
-	$search = array('$year', '$seasonType', '$week');
-	$replace = array($year, $seasonString, $week);
-	$searchString = str_replace($search, $replace, $GLOBALS['ranksURL']);
-
-	$ranks = json_decode(file_get_contents($searchString, false, $context));
-
-	$selectedPoll = 'AP Top 25';
-	foreach($ranks[0]->polls as $poll) {
-		if($poll->poll == 'Playoff Committee Rankings') {
-			$selectedPoll = 'Playoff Committee Rankings';
-		}
-	}
-	foreach($ranks[0]->polls as $poll) {
-		if($poll->poll == $selectedPoll) {
-			foreach($dbConn as $instance) {
-				loadRank($instance, $poll, $weekArray, $teams);
-			}
-		}
 	}
 }
 
@@ -139,8 +86,8 @@ function loadGamesCurWeek2($forceCheck) {
 	if(sqlsrv_has_rows(sqlsrv_query($dbConn[0], $query)) || (round(time() / 60) % $intervalMinutesIdle) == 0 || $forceCheck) {
 		
 		$limit = 300 + rand(1, 50);
-		$search = array('$year', '$week', '$seasonType', '$limit');
-		$replace = array($curWeek->year, $curWeek->week, $curWeek->seasonType + 1, $limit);
+		$search = array('$year', '$week', '$seasonType', '$limit', '$conf');
+		$replace = array($curWeek->year, $curWeek->week, $curWeek->seasonType + 1, $limit, 90);
 		$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
 		do {
 			$scoreboardStr = @file_get_contents($searchString);
@@ -210,6 +157,75 @@ function loadRanksESPN() {
 	}
 }
 
+function loadGamesYear($year) {
+	$dbConn = sqlConnectAll();
+	$weeks = getAllYearWeeks($dbConn[0], $year);
+	$curWeek = getCurWeek($dbConn[0]);
+	$confs = getConfsObjs($dbConn[0]);
+
+	foreach($weeks as $week) {
+		$success = 0;
+		$confArray = array(90);
+		echo $week->weekID . "\n";
+		while($success == 0) {
+			foreach($confArray as $conf) {
+				$limit = 500 + rand(1, 50);
+				$search = array('$year', '$week', '$seasonType', '$limit', '$conf');
+				$replace = array($week->year, $week->week, $week->seasonType + 1, $limit, $conf);
+				$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
+				do {
+					echo "Pulling data, limit: " . $limit . "\n";
+					$scoreboardStr = @file_get_contents($searchString);
+					$limit++;
+				} while(strlen($scoreboardStr) < 1000 && $limit < 550);
+				
+				if(strlen($scoreboardStr) > 1000) {
+					$success = 1;
+					$scoreboard = json_decode($scoreboardStr);
+					$games = $scoreboard->events;
+
+					foreach($games as $game) {
+						echo "\t" . $game->id . "\n";
+						// Check what status we have in DB
+						$sqlGameQuery = 'SELECT statusID FROM games WHERE id = ?';
+						$sqlGameArray = array($game->id);
+						$sqlGameRslt = sqlsrv_query($dbConn[0], $sqlGameQuery, $sqlGameArray);
+						if(sqlsrv_has_rows($sqlGameRslt)) {
+							$statusID = sqlsrv_fetch_array($sqlGameRslt)['statusID'];
+						} else {
+							$statusID = null;
+						}
+
+						// If game is scheduled or we don't have it then load game details
+						if($statusID == null && $week->weekID <= $curWeek->weekID) {
+							echo "\t\tPulling game details\n";
+							$search = '$gameID';
+							$replace = (string)$game->id;
+							$searchString = str_replace($search, $replace, $GLOBALS['espnGameURL']);
+							do{
+								$gameStr = @file_get_contents($searchString);
+							} while(strlen($gameStr) < 1000);
+							$gameDetails = json_decode($gameStr);
+						}
+
+						foreach($dbConn as $instance) {
+							loadGameScoreboard($instance, $game, $week);
+							if($statusID == null && $week->weekID <= $curWeek->weekID) {
+								updateESPNSpread2($instance, $game->id, $gameDetails);
+							}
+						}
+					}
+				} else {
+					$confArray = array();
+					foreach($confs as $conf) {
+						array_push($confArray, $conf->id);
+					}
+				}
+			}
+		}
+	}
+}
+
 if(count($argv) > 1) {
 	switch($argv[1]) {
 		case 'loadTeams':
@@ -238,12 +254,12 @@ if(count($argv) > 1) {
 				break;
 			}
 
-		case 'loadYear':
+		case 'loadGamesYear':
 			if(isset($argv[2])) {
-				loadYear($argv[2]);
+				loadGamesYear($argv[2]);
 				break;
 			} else {
-				echo 'Year not set';
+				echo "Year not set\n";
 				break;
 			}
 

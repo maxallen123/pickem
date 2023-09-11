@@ -40,6 +40,26 @@ function getCurWeek($dbConn) {
 	return new weekObj($weekArray);
 }
 
+function getWeekNumber($dbConn, $year, $seasonType, $weekNum) {
+	$query = 'SELECT * FROM weeks WHERE year = ? AND seasonType = ? AND week = ?';
+	$queryArray = array($year, $seasonType, $weekNum);
+	$weekArray = sqlsrv_fetch_array(sqlsrv_query($dbConn, $query, $queryArray));
+	return new weekObj($weekArray);
+}
+
+function getAllYearWeeks($dbConn, $year) {
+	$query = 'SELECT * FROM weeks WHERE year = ?';
+	$queryArray = array($year);
+	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
+	$weeks = array();
+	if(sqlsrv_has_rows($rslt)) {
+		while($week = sqlsrv_fetch_array($rslt)) {
+			array_push($weeks, new weekObj($week));
+		}
+	}
+	return $weeks;
+}
+
 // Returns array of specified week's games 
 function getWeeksGames($dbConn, $curWeek) {
 	$query = 'SELECT 
@@ -134,6 +154,18 @@ function getConfs($dbConn) {
 	}
 
 	return $conferences;
+}
+
+function getConfsObjs($dbConn) {
+	$query = 'SELECT id, name, short_name, abbreviation, isFBS FROM conferences';
+	$rslt = sqlsrv_query($dbConn, $query);
+	$confArray = array();
+	if(sqlsrv_has_rows($rslt)) {
+		while($confRow = sqlsrv_fetch_array($rslt)) {
+			array_push($confArray, new confObj($confRow));
+		}
+	}
+	return $confArray;
 }
 
 // Fetch array of users
