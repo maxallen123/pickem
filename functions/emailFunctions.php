@@ -306,12 +306,7 @@ function mailGamesRows($dbConn, $game, $ranks) {
 			?>
 		</td>
 		<td <?= $cssClasses['gamesCustomName']->styleTag() ?>>
-		<?php
-		
-		if($game->customName != null) {
-			echo $game->customName;
-		}
-		?>
+			<?= $game->gameNameBar() ?>
 		</td>
 	</tr>
 	<?php
