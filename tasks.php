@@ -186,7 +186,6 @@ function loadGamesYear($year) {
 				$search = array('$year', '$week', '$seasonType', '$limit', '$conf');
 				do {
 					$replace = array($week->year, $week->week, $week->seasonType + 1, $limit, $conf);
-					print_r($replace);
 					$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
 					echo "Pulling data, " . $searchString . "\n";
 					$scoreboardStr = @file_get_contents($searchString);
