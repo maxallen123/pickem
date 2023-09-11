@@ -180,12 +180,13 @@ function loadGamesYear($year) {
 		$success = 0;
 		$confArray = array(90);
 		echo $week->weekID . "\n";
-		while($success == 0) {
+		while($success == 0 && $week != 17) {
 			foreach($confArray as $conf) {
 				$limit = 300 + rand(1, 50);
 				$search = array('$year', '$week', '$seasonType', '$limit', '$conf');
 				do {
 					$replace = array($week->year, $week->week, $week->seasonType + 1, $limit, $conf);
+					print_r($replace);
 					$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
 					echo "Pulling data, " . $searchString . "\n";
 					$scoreboardStr = @file_get_contents($searchString);
