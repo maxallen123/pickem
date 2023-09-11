@@ -164,7 +164,7 @@ class gameObj {
 	}
 
 	public function gameNameBar() {
-		$nameString = '';
+		$gameString = '';
 		if($this->isRivalry) {
 			if($this->rivalryName != null) {
 				$gameString .= $this->rivalryName;
