@@ -76,6 +76,7 @@ function loadGamesCurWeek2($forceCheck) {
 	$GLOBALS['graceOffset'] = -6;
 	$GLOBALS['graceUnit'] = 'hour';
 	$curWeek = getCurWeek($dbConn[0]);
+	$confs = getConfsObjs($dbConn[0]);
 
 	$gameFuture = 2;
 	$gamePast   = -6;
@@ -84,49 +85,61 @@ function loadGamesCurWeek2($forceCheck) {
 	$query = 'SELECT id FROM GAMES WHERE startDate >= DATEADD(hour, ' . $gamePast . ', GETDATE()) AND startDate <= DATEADD(hour, ' . $gameFuture . ', GETDATE())';
 	// If either a game might be near, going on, or if it's time for an update
 	if(sqlsrv_has_rows(sqlsrv_query($dbConn[0], $query)) || (round(time() / 60) % $intervalMinutesIdle) == 0 || $forceCheck) {
-		
-		$limit = 300 + rand(1, 50);
-		$search = array('$year', '$week', '$seasonType', '$limit', '$conf');
-		$replace = array($curWeek->year, $curWeek->week, $curWeek->seasonType + 1, $limit, 90);
-		$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
-		do {
-			$scoreboardStr = @file_get_contents($searchString);
-			$limit++;
-		} while(strlen($scoreboardStr) < 1000);
-		$scoreboard = json_decode($scoreboardStr);
-		$games = $scoreboard->events;
+		$success = 0;
+		$confArray = array(90);
+		while($success == 0) {
+			foreach($confArray as $conf) {
+				$limit = 300 + rand(1, 50);
+				$search = array('$year', '$week', '$seasonType', '$limit', '$conf');
+				do {
+					echo "Pulling data, limit: " . $limit . "\n";
+					$replace = array($curWeek->year, $curWeek->week, $curWeek->seasonType + 1, $limit, $conf);
+					$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
+					$scoreboardStr = @file_get_contents($searchString);
+					$limit++;
+				} while(strlen($scoreboardStr) < 1000 && $limit < 375);
 
-		// Prepare the status checks because we'll do this each time
-		$sqlGameQuery = 'SELECT statusID FROM games WHERE id = ?';
-		$sqlGameArray = array('id' => 0);
-		$sqlGameRslt = sqlsrv_prepare($dbConn[0], $sqlGameQuery, $sqlGameArray);
+				if(strlen($scoreboardStr) > 1000) {
+					$success = 1;
+					$scoreboard = json_decode($scoreboardStr);
+					$games = $scoreboard->events;
 
-		foreach($games as $game) {
-			
-			// Check what status we have in DB
-			$sqlGameArray['id'] = $game->id;
-			sqlsrv_execute($sqlGameRslt);
-			if(sqlsrv_has_rows($sqlGameRslt)) {
-				$statusID = sqlsrv_fetch_array($sqlGameRslt)['statusID'];
-			} else {
-				$statusID = null;
-			}
+					foreach($games as $game) {
+						echo "\t" . $game->id . "\n";
+						// Check what status we have in DB
+						$sqlGameQuery = 'SELECT statusID FROM games WHERE id = ?';
+						$sqlGameArray = array($game->id);
+						$sqlGameRslt = sqlsrv_query($dbConn[0], $sqlGameQuery, $sqlGameArray);
+						if(sqlsrv_has_rows($sqlGameRslt)) {
+							$statusID = sqlsrv_fetch_array($sqlGameRslt)['statusID'];
+						} else {
+							$statusID = null;
+						}
 
-			// If game is scheduled or we don't have it then load game details
-			if($statusID == 1 || $statusID == null) {
-				$search = '$gameID';
-				$replace = (string)$game->id;
-				$searchString = str_replace($search, $replace, $GLOBALS['espnGameURL']);
-				do{
-					$gameStr = @file_get_contents($searchString);
-				} while(strlen($gameStr) < 1000);
-				$gameDetails = json_decode($gameStr);
-			}
+						// If game is scheduled or we don't have it then load game details
+						if($statusID == 1 || $statusID == null) {
+							echo "\t\tPulling game details\n";
+							$search = '$gameID';
+							$replace = (string)$game->id;
+							$searchString = str_replace($search, $replace, $GLOBALS['espnGameURL']);
+							do{
+								$gameStr = @file_get_contents($searchString);
+							} while(strlen($gameStr) < 1000);
+							$gameDetails = json_decode($gameStr);
+						}
 
-			foreach($dbConn as $instance) {
-				loadGameScoreboard($instance, $game, $curWeek);
-				if($statusID == 1 || $statusID == null) {
-					updateESPNSpread2($instance, $game->id, $gameDetails);
+						foreach($dbConn as $instance) {
+							loadGameScoreboard($instance, $game, $curWeek);
+							if($statusID == 1 || $statusID == null) {
+								updateESPNSpread2($instance, $game->id, $gameDetails);
+							}
+						}
+					}
+				} else {
+					$confArray = array();
+					foreach($confs as $conf) {
+						array_push($confArray, $conf->id);
+					}
 				}
 			}
 		}
@@ -171,13 +184,13 @@ function loadGamesYear($year) {
 			foreach($confArray as $conf) {
 				$limit = 500 + rand(1, 50);
 				$search = array('$year', '$week', '$seasonType', '$limit', '$conf');
-				$replace = array($week->year, $week->week, $week->seasonType + 1, $limit, $conf);
-				$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
 				do {
+					$replace = array($week->year, $week->week, $week->seasonType + 1, $limit, $conf);
+					$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
 					echo "Pulling data, limit: " . $limit . "\n";
 					$scoreboardStr = @file_get_contents($searchString);
 					$limit++;
-				} while(strlen($scoreboardStr) < 1000 && $limit < 550);
+				} while(strlen($scoreboardStr) < 1000 && $limit < 575);
 				
 				if(strlen($scoreboardStr) > 1000) {
 					$success = 1;
