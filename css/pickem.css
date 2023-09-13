@@ -79,7 +79,7 @@
 	height: 30px;
 	width: 30px;
 	padding: 0;
-	font-size: 12px;
+	font-size: 10px;
 	align-items: end;
 	justify-content: center;
 	font-weight: bold;
@@ -145,7 +145,7 @@
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	width: calc(100% - 225px);
+	width: calc(100% - 250px);
 	height: 45px;
 	font-variant: small-caps;
 	align-items: center;
@@ -169,6 +169,33 @@
 	font-size: 11px;
 	font-weight: bold;
 	align-items: start;
+}
+
+.scheduleCell {
+	display: flex;
+	width: 25px;
+	height: 45px;
+	align-items: center;
+	justify-content: center;
+	padding: 0px;
+}
+
+.surroundHamburger {
+	border: 0px solid;
+	font-size: 14px;
+	width: 25px;
+	height: 25px;
+	justify-content: center;
+	letter-spacing: -2px;
+	display: flex;
+	align-items: center;
+	background-color: inherit;
+	color: inherit;
+	position: relative;
+}
+
+.scheduleBox {
+	padding: 0px;
 }
 
 .lineScore {
@@ -388,3 +415,83 @@
 	text-align: center !important;
 }
 
+.scheduleRow {
+	overflow: hidden;
+	padding: 0px;
+	display: flex;
+	align-items: center;
+	width: 175px;
+}
+
+.scheduleHomeAway {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 15px;
+	padding-left: 5px;
+	padding-right: 5px;
+	width: 25px;
+	max-width: 25px;
+	font-size: 14px;
+}
+
+.scheduleLogo {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 15px;
+	padding-left: 5px;
+	padding-right: 5px;
+	width: 25px;
+	max-width: 25px;
+	font-size: 14px;
+}
+
+.scheduleName {
+	display: flex;
+	width: 70px;
+	max-width: 70px;
+	height: 15px;
+	font-size: 14px;
+	justify-content: left;
+	align-items: center;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.scheduleWinLoss {
+	display: flex;
+	width: 25px;
+	max-width: 25px;
+	height: 15px;
+	font-size: 14px;
+	font-weight: bold;
+	justify-content: right;
+	align-items: center;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.scheduleScore {
+	display: flex;
+	width: 55px;
+	max-width: 55px;
+	height: 15px;
+	font-size: 14px;
+	padding-left: 5px;
+	padding-right: 5px;
+	justify-content: right;
+	align-items: center;
+}
+
+.schedule-W {
+	color: green;
+}
+
+.schedule-L {
+	color: red;
+}
+
+.schedule-gameOver {
+	font-weight: bold;
+}

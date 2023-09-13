@@ -1,4 +1,27 @@
 $(document).ready(function() {
+
+	$('.surroundHamburger').popover({
+		content: function setPopover(team) {
+			var teamID = $(team).attr('id').replace('teamSchedule-', '');
+			loadSchedule(teamID);
+			var teamTableHTML = '';
+			for(var row = 0; row < 15; row++) {
+				teamTableHTML += `
+					<div id="scheduleRow-${teamID}-${row}" class="row scheduleRow">
+						<div id="scheduleHomeAway-${teamID}-${row}" class="col scheduleHomeAway"></div>
+						<div id="scheduleLogo-${teamID}-${row}" class="col scheduleLogo"></div>
+						<div id="scheduleName-${teamID}-${row}" class="col scheduleName"></div>
+						<div id="scheduleWinLoss-${teamID}-${row}" class="col scheduleWinLoss"></div>
+						<div id="scheduleScore-${teamID}-${row}" class="col scheduleScore"></div>
+					</div>
+				`;
+			}
+			return teamTableHTML;
+		}});
+
+	/*const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+	const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));*/	
+
 	updatePicks();
 	setInterval(() => {
 		updatePicks();
@@ -263,4 +286,38 @@ function compare() {
 				}
 		});
 	}
+}
+
+function loadSchedule(teamID) {
+	$.ajax({
+		method: 'POST',
+		url: './ajax/picker.php',
+		data: {
+			function: 'schedule',
+			teamID: teamID
+		},
+		datatype: 'json',
+		success: 
+			function(schedule) {
+				schedule = schedule['schedule'];
+				for(var row = 0; row < 15; row++) {
+					if(typeof schedule[row] != 'undefined') {
+						$(`#scheduleHomeAway-${teamID}-${row}`).text(schedule[row]['homeAway']);
+						$(`#scheduleLogo-${teamID}-${row}`).html(`<img src="images/teamLogo.php?teamID=${schedule[row]['opptID']}&height=15">`);
+						$(`#scheduleName-${teamID}-${row}`).text(schedule[row]['opptAbbr']);
+						if(schedule[row]['winLoss'] != null) {
+							$(`#scheduleWinLoss-${teamID}-${row}`).text(schedule[row]['winLoss']);
+							$(`#scheduleWinLoss-${teamID}-${row}`).addClass(`schedule-${schedule[row]['winLoss']}`);
+							$(`#scheduleScore-${teamID}-${row}`).text(`${schedule[row]['winnerScore']}-${schedule[row]['loserScore']}`);
+							$(`#scheduleScore-${teamID}-${row}`).addClass(`schedule-gameOver`);
+						} else {
+							$(`#scheduleWinLoss-${teamID}-${row}`).addClass('schedule-none');
+							$(`#scheduleScore-${teamID}-${row}`).text(`${schedule[row]['date']}`);
+						}
+					} else {
+						$(`#scheduleRow-${teamID}-${row}`).remove();
+					}
+				}
+			}
+	});
 }

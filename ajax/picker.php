@@ -8,7 +8,7 @@ if(isset($argv[1])) {
 	$_POST['function'] = $argv[1];
 }
 if(isset($argv[2])) {
-	$_POST['userID'] = $argv[2];
+	$_POST['teamID'] = $argv[2];
 }
 
 
@@ -21,6 +21,9 @@ switch($_POST['function']) {
 		break;
 	case 'compare':
 		compare($dbConn);
+		break;
+	case 'schedule':
+		schedule($dbConn);
 		break;
 }
 
@@ -90,5 +93,11 @@ function compare($dbConn) {
 	$returnVal['score'] = getUserScore($dbConn, $userID, $curWeek);
 	
 	echo json_encode($returnVal);
+}
+
+function schedule($dbConn) {
+	$curWeek = getCurWeek($dbConn);
+	$schedule = new scheduleObj($dbConn, $curWeek, $_POST['teamID']);
+	echo json_encode($schedule);
 }
 ?>

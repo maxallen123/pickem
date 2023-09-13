@@ -238,6 +238,46 @@ class teamObj {
 	}
 }
 
+class scheduleObj {
+	public $schedule = array();
+
+	function __construct($dbConn, $curWeek, $teamID) {
+		$query = 'SELECT games.id, games.winnerID, games.loserID, games.homeID, games.isNeutral,
+					games.awayID, games.completed, games.statusID, games.startDate,
+					games.homePoints, games.awayPoints, homeTeam.abbreviation AS homeAbbr, awayTeam.abbreviation AS awayAbbr
+					FROM games 
+					LEFT JOIN teams AS homeTeam ON homeTeam.id = homeID
+					LEFT JOIN teams AS awayTeam ON awayTeam.id = awayID
+					WHERE 
+					games.weekID IN 
+						(SELECT id FROM weeks WHERE year = ?)
+					AND
+					(games.homeID = ? OR games.awayID = ?)
+					ORDER BY startDate';
+		$queryArray = array($curWeek->year, $teamID, $teamID);
+		$rslt = sqlsrv_query($dbConn, $query, $queryArray);
+		while($game = sqlsrv_fetch_array($rslt)) {
+			array_push($this->schedule, new scheduleGameObj($game, $teamID));
+		}
+	}
+
+	function printSchedule() {
+		ob_start();
+		?>
+		<table>
+			<?php
+			foreach($this->schedule as $game) {
+				echo $game->scheduleRow();
+			}
+			?>
+		</table>
+		<?php
+		$returnVal = ob_get_contents();
+		ob_end_clean();
+		return $returnVal;
+	}
+}
+
 class venueObj {
 	public $id;
 	public $name;
@@ -362,5 +402,93 @@ class othersPickObj {
 		$this->winnerID = $pickArray['winnerID'];
 		$this->multiplier = $pickArray['multiplier'];
 		$this->jokeGame = $pickArray['jokeGame'];
+	}
+}
+
+class scheduleGameObj {
+	public $gameID;
+	public $winLoss = null;
+	public $opptID;
+	public $opptAbbr;
+	public $homeAway;
+	public $date;
+	public $winnerScore;
+	public $loserScore;
+
+	function __construct($game, $teamID) {
+		$this->id = $game['id'];
+		
+		if($game['completed']) {
+			if($game['winnerID'] == $teamID) {
+				$this->winLoss = 'W';
+			} else {
+				$this->winLoss = 'L';
+			}
+		}
+
+		if($game['homeID'] == $teamID) {
+			$this->opptID = $game['awayID'];
+			$this->opptAbbr = $game['awayAbbr'];
+			$this->homeAway = 'vs';
+			if($this->winLoss != null) {
+				if($this->winLoss == 'W') {
+					$this->winnerScore = $game['homePoints'];
+					$this->loserScore = $game['awayPoints'];
+				} else {
+					$this->winnerScore = $game['awayPoints'];
+					$this->loserScore = $game['homePoints'];
+				}
+			}
+		} else {
+			$this->opptID = $game['homeID'];
+			$this->opptAbbr = $game['homeAbbr'];
+			if(!$game['isNeutral']) {
+				$this->homeAway = '@';
+			} else {
+				$this->homeAway = 'vs';
+			}
+			if($this->winLoss != null) {
+				if($this->winLoss == 'W') {
+					$this->winnerScore = $game['awayPoints'];
+					$this->loserScore = $game['homePoints'];
+				} else {
+					$this->winnerScore = $game['homePoints'];
+					$this->loserScore = $game['awayPoints'];
+				}
+			}
+		}
+
+		$game['startDate']->setTimezone(new DateTimeZone('Pacific/Honolulu'));
+		$this->date = $game['startDate']->format('n/j');
+	}
+
+	function scheduleRow() {
+		ob_start();
+		?>
+		<tr>
+			<td>
+				<?= $this->winLoss ?>
+			</td>
+			<td>
+				<?= $this->homeAway ?>
+			</td>
+			<td>
+				<?= $this->opptAbbr ?>
+			</td>
+			<td>
+				<?php
+				if($this->winLoss != null) {
+					echo $this->winnerScore . '-' . $this->loserScore;
+				} else {
+					$this->date->setTimezone(new DateTimeZone('Pacific/Honolulu'));
+					echo $this->date->format('n/j');
+				}
+				?>
+			</td>
+		</tr>
+		<?php
+		$returnVal = ob_get_contents();
+		ob_end_clean();
+		return $returnVal;
 	}
 }
