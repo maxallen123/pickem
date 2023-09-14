@@ -421,4 +421,23 @@ function loadRankESPN($dbConn, $poll, $curWeek) {
 		}
 	}
 }
+
+function updateESPNPredictorProbability($dbConn, $gameDetails) {
+	$gameID = $gameDetails->header->id;
+	if(isset($gameDetails->predictor->homeTeam->gameProjection)) {
+		$prediction = $gameDetails->predictor->homeTeam->gameProjection;
+	} else {
+		$prediction = -1;
+	}
+	if(isset($gameDetails->winprobability)) {
+		$max = count($gameDetails->winprobability) - 1;
+		$probability = $gameDetails->winprobability[$max]->homeWinPercentage * 100;
+	} else {
+		$probability = null;
+	}
+	$query = 'UPDATE games SET predictor = ?, probability = ? WHERE id = ?';
+	$queryArray = array($prediction, $probability, $gameID);
+	sqlsrv_query($dbConn, $query, $queryArray);
+	print_r(sqlsrv_errors());
+}
 ?>

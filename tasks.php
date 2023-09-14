@@ -77,6 +77,7 @@ function loadGamesCurWeek2($forceCheck) {
 	$GLOBALS['graceUnit'] = 'hour';
 	$curWeek = getCurWeek($dbConn[0]);
 	$confs = getConfsObjs($dbConn[0]);
+	$teams = getTeams($dbConn[0]);
 
 	$gameFuture = 2;
 	$gamePast   = -6;
@@ -107,17 +108,19 @@ function loadGamesCurWeek2($forceCheck) {
 					foreach($games as $game) {
 						echo "\t" . $game->id . "\n";
 						// Check what status we have in DB
-						$sqlGameQuery = 'SELECT statusID FROM games WHERE id = ?';
+						$sqlGameQuery = 'SELECT statusID, predictor FROM games WHERE id = ?';
 						$sqlGameArray = array($game->id);
 						$sqlGameRslt = sqlsrv_query($dbConn[0], $sqlGameQuery, $sqlGameArray);
 						if(sqlsrv_has_rows($sqlGameRslt)) {
-							$statusID = sqlsrv_fetch_array($sqlGameRslt)['statusID'];
+							$row = sqlsrv_fetch_array($sqlGameRslt);
+							$statusID = $row['statusID'];
+							$predictor = $row['predictor'];
 						} else {
 							$statusID = null;
 						}
 
 						// If game is scheduled or we don't have it then load game details
-						if($statusID == 1 || $statusID == null) {
+						if(($statusID == 1 || $statusID == null || $predictor == null || in_array($statusID, array(2, 22, 23)) && isset($teams[$game->competitions[0]->competitors[0]->id]) && isset($teams[$game->competitions[0]->competitors[1]->id]))) {
 							echo "\t\tPulling game details\n";
 							$search = '$gameID';
 							$replace = (string)$game->id;
@@ -130,8 +133,11 @@ function loadGamesCurWeek2($forceCheck) {
 
 						foreach($dbConn as $instance) {
 							loadGameScoreboard($instance, $game, $curWeek);
-							if($statusID == 1 || $statusID == null) {
+							if(($statusID == 1 || $statusID == null) && isset($teams[$game->competitions[0]->competitors[0]->id]) && isset($teams[$game->competitions[0]->competitors[1]->id])) {
 								updateESPNSpread2($instance, $game->id, $gameDetails);
+							}
+							if(($predictor == null ||  in_array($statusID, array(2, 22, 23))) && isset($teams[$game->competitions[0]->competitors[0]->id]) && isset($teams[$game->competitions[0]->competitors[1]->id])) {
+								updateESPNPredictorProbability($instance, $gameDetails);
 							}
 						}
 					}
@@ -175,12 +181,13 @@ function loadGamesYear($year) {
 	$weeks = getAllYearWeeks($dbConn[0], $year);
 	$curWeek = getCurWeek($dbConn[0]);
 	$confs = getConfsObjs($dbConn[0]);
+	$teams = getTeams($dbConn[0]);
 
 	foreach($weeks as $week) {
 		$success = 0;
 		$confArray = array(90);
 		echo $week->weekID . "\n";
-		while($success == 0 && $week->weekID != 17) {
+		while($success == 0) {
 			foreach($confArray as $conf) {
 				$limit = 300 + rand(1, 50);
 				$search = array('$year', '$week', '$seasonType', '$limit', '$conf');
@@ -199,18 +206,20 @@ function loadGamesYear($year) {
 
 					foreach($games as $game) {
 						echo "\t" . $game->id . "\n";
-						// Check what status we have in DB
-						$sqlGameQuery = 'SELECT statusID FROM games WHERE id = ?';
+						// Check what we have in DB
+						$sqlGameQuery = 'SELECT statusID, predictor, probability FROM games WHERE id = ?';
 						$sqlGameArray = array($game->id);
 						$sqlGameRslt = sqlsrv_query($dbConn[0], $sqlGameQuery, $sqlGameArray);
 						if(sqlsrv_has_rows($sqlGameRslt)) {
-							$statusID = sqlsrv_fetch_array($sqlGameRslt)['statusID'];
+							$row = sqlsrv_fetch_array($sqlGameRslt);
+							$statusID = $row['statusID'];
+							$predictor = $row['predictor'];
 						} else {
 							$statusID = null;
 						}
 
 						// If game is scheduled or we don't have it then load game details
-						if($statusID == null && $week->weekID <= $curWeek->weekID) {
+						if(($statusID == null || $predictor == null) && $week->weekID <= $curWeek->weekID && isset($teams[$game->competitions[0]->competitors[0]->id]) && isset($teams[$game->competitions[0]->competitors[1]->id])) {
 							echo "\t\tPulling game details\n";
 							$search = '$gameID';
 							$replace = (string)$game->id;
@@ -221,10 +230,13 @@ function loadGamesYear($year) {
 							$gameDetails = json_decode($gameStr);
 						}
 
-						foreach($dbConn as $instance) {
-							loadGameScoreboard($instance, $game, $week);
-							if($statusID == null && $week->weekID <= $curWeek->weekID) {
-								updateESPNSpread2($instance, $game->id, $gameDetails);
+						if(isset($teams[$game->competitions[0]->competitors[0]->id]) && isset($teams[$game->competitions[0]->competitors[1]->id])) {
+							foreach($dbConn as $instance) {
+								loadGameScoreboard($instance, $game, $week);
+								if(($statusID == null || $predictor == null) && $week->weekID <= $curWeek->weekID) {
+									updateESPNSpread2($instance, $game->id, $gameDetails);
+									updateESPNPredictorProbability($instance, $gameDetails);
+								}
 							}
 						}
 					}

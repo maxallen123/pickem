@@ -183,7 +183,7 @@ function printRowTeam($team, $game, $homeAway, $pickPage) {
 			</div>
 		</div>
 		<div class="scheduleCell">
-			<button id="teamSchedule-<?= $team->id ?>" class="surroundHamburger" data-bs-toggle="popover" data-bs-html="true" data-bs-sanitize="false" data-bs-custom-class="scheduleBox">☰▸</button>
+			<button id="teamSchedule-<?= $team->id ?>" class="surroundHamburger" data-bs-toggle="popover" data-bs-html="true" data-bs-custom-class="scheduleBox">☰▸</button>
 		</div>
 		<?php
 		$teamTotal = null;

@@ -1,22 +1,8 @@
 $(document).ready(function() {
 
 	$('.surroundHamburger').popover({
-		content: function setPopover(team) {
-			var teamID = $(team).attr('id').replace('teamSchedule-', '');
-			loadSchedule(teamID);
-			var teamTableHTML = '';
-			for(var row = 0; row < 15; row++) {
-				teamTableHTML += `
-					<div id="scheduleRow-${teamID}-${row}" class="row scheduleRow">
-						<div id="scheduleHomeAway-${teamID}-${row}" class="col scheduleHomeAway"></div>
-						<div id="scheduleLogo-${teamID}-${row}" class="col scheduleLogo"></div>
-						<div id="scheduleName-${teamID}-${row}" class="col scheduleName"></div>
-						<div id="scheduleWinLoss-${teamID}-${row}" class="col scheduleWinLoss"></div>
-						<div id="scheduleScore-${teamID}-${row}" class="col scheduleScore"></div>
-					</div>
-				`;
-			}
-			return teamTableHTML;
+		content: function (team) {
+			return setPopover(team);
 		}});
 
 	/*const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
@@ -28,6 +14,24 @@ $(document).ready(function() {
 		compare();
 	}, 10000);
 });
+
+function setPopover(team) {
+	var teamID = $(team).attr('id').replace('teamSchedule-', '');
+	loadSchedule(teamID);
+	var teamTableHTML = '';
+	for(var row = 0; row < 15; row++) {
+		teamTableHTML += `
+			<div id="scheduleRow-${teamID}-${row}" class="row scheduleRow">
+				<div id="scheduleHomeAway-${teamID}-${row}" class="col scheduleHomeAway"></div>
+				<div id="scheduleLogo-${teamID}-${row}" class="col scheduleLogo"></div>
+				<div id="scheduleName-${teamID}-${row}" class="col scheduleName"></div>
+				<div id="scheduleWinLoss-${teamID}-${row}" class="col scheduleWinLoss"></div>
+				<div id="scheduleScore-${teamID}-${row}" class="col scheduleScore"></div>
+			</div>
+		`;
+	}
+	return teamTableHTML;
+}
 
 function setPick(gameID) {
 	var selectID = '#pick-' + gameID;
