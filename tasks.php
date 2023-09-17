@@ -90,12 +90,14 @@ function loadGamesCurWeek2($forceCheck) {
 		$confArray = array(90);
 		while($success == 0) {
 			foreach($confArray as $conf) {
-				$limit = 300 + rand(1, 50);
+				$limit = 300;
 				$search = array('$year', '$week', '$seasonType', '$limit', '$conf');
 				do {
 					echo "Pulling data, limit: " . $limit . "\n";
 					$replace = array($curWeek->year, $curWeek->week, $curWeek->seasonType + 1, $limit, $conf);
 					$searchString = str_replace($search, $replace, $GLOBALS['espnScoreboardURL']);
+					$scoreboardStr = @file_get_contents($searchString);
+					sleep(5);
 					$scoreboardStr = @file_get_contents($searchString);
 					$limit++;
 				} while(strlen($scoreboardStr) < 1000 && $limit < 375);
@@ -156,8 +158,10 @@ function loadGamesCurWeek2($forceCheck) {
 
 function loadRanksESPN() {
 	$dbConn = sqlConnectAll();
+	$GLOBALS['graceOffset'] = 0;
+	$GLOBALS['graceUnit'] = 'hour';
 	$curWeek = getCurWeek($dbConn[0]);
-
+	
 	$ranks = json_decode(@file_get_contents($GLOBALS['espnRankingURL']));
 
 	$selectedPoll = 'AP Top 25';
@@ -169,6 +173,7 @@ function loadRanksESPN() {
 
 	foreach($ranks->rankings as $poll) {
 		if($poll->name == $selectedPoll) {
+			print_r($poll->ranks);
 			foreach($dbConn as $instance) {
 				loadRankESPN($instance, $poll, $curWeek);
 			}

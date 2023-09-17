@@ -96,11 +96,11 @@ function getWeeksGames($dbConn, $curWeek) {
 				LEFT JOIN weeks AS weekPresent ON games.weekID = weekPresent.id
 				LEFT JOIN rivalries ON (games.homeID = rivalries.teamAID AND games.awayID = rivalries.teamBID) OR (games.homeID = rivalries.teamBID AND games.awayID = rivalries.teamAID)
 				WHERE 
-				((games.weekID = ? AND openSpread <= ? AND (games.openSpreadTime <= DATEADD(' . $GLOBALS['graceUnit'] . ',' . $GLOBALS['graceOffset'] . ', ?) OR games.openSpreadTime IS NULL)) 
+				((games.weekID = ? AND openSpread <= ? AND (games.openSpreadTime <= DATEADD(day, 1, ?) OR games.openSpreadTime IS NULL)) 
 				AND (home.isFBS = 1 OR away.isFBS = 1))
 				OR (games.weekID = ? AND forceInclude = 1)
 				OR (rivalries.teamAID IS NOT NULL AND games.weekID = ?)
-				ORDER BY startDate ASC';
+				ORDER BY startDate ASC, games.id ASC';
 	$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->startDate, $curWeek->weekID, $curWeek->weekID);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	print_r(sqlsrv_errors());

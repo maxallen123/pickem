@@ -4,7 +4,7 @@ require('functions.php');
 if(session_status() == PHP_SESSION_NONE) session_start();
 $dbConn = sqlConnect();
 $curWeek = getCurWeek($dbConn);
-$weeksGames = getWeeksGames($dbConn, $curWeek);
+$games = getWeeksGames($dbConn, $curWeek);
 $users = getUsers($dbConn, $curWeek);
 pageHeader($dbConn, 'Week '. $curWeek->week);
 if(isset($_SESSION['uid'])) {
@@ -19,13 +19,13 @@ echo json_encode($weeksGames); */
 ?>
 <div class="row col-3 compareCell">
 	<?php
-	if($_SESSION['uid']) {
+	if(isset($_SESSION['uid'])) {
 		?>
 		<div class="col-3 header-compare">
 			Compare to:	
 		</div>
 		<div class="col-3 selectCompareCell">
-			<select id="selectCompare" class="form-select selectCompare text-center" onchange="compare()">
+			<select id="selectCompare" class="form-select selectCompare text-center" onchange="updateCompare()">
 				<option value="-1" selected></option>
 				<?php
 				foreach($users as $user) {
@@ -43,17 +43,20 @@ echo json_encode($weeksGames); */
 	?>
 </div>
 <?php
-foreach($weeksGames as $game) {
+for($boxID = 0; $boxID <= 150; $boxID++) {
+	if(isset($games[$boxID])) {
 	?>
 	<div class="row">
 		<?php
-		printGame($dbConn, $game, 1);
+		$games[$boxID]->printGame($boxID, 1);
 		if(isset($_SESSION['uid'])) {
-			printGamePicker($dbConn, $game);
+			$games[$boxID]->printGamePicker($boxID);
 		}
 		?>
 	</div>
 	<?php
+	} else {
+	}
 }
 ?>
 </body>

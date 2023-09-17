@@ -16,8 +16,8 @@ switch($_POST['function']) {
 	case 'setPick':
 		setPick($dbConn);
 		break;
-	case 'updatePicks':
-		updatePicks($dbConn);
+	case 'updatePage':
+		updatePage($dbConn);
 		break;
 	case 'compare':
 		compare($dbConn);
@@ -59,7 +59,7 @@ function setPick($dbConn) {
 	}
 }
 
-function updatePicks($dbConn) {
+function updatePage($dbConn) {
 	$curWeek = getCurWeek($dbConn);
 	$ranks = getRankArray($dbConn, $curWeek);
 	$weeksGames = getWeeksGames($dbConn, $curWeek, $ranks);
@@ -85,7 +85,7 @@ function compare($dbConn) {
 	$picks = array();
 	if(sqlsrv_has_rows($rslt)) {
 		while($pickRow = sqlsrv_fetch_array($rslt)) {
-			array_push($picks, new othersPickObj($pickRow));
+			$picks[$pickRow['id']] = new othersPickObj($pickRow);
 		}
 	}
 

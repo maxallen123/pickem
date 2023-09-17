@@ -163,7 +163,187 @@ class gameObj {
 		}
 	}
 
-	public function gameNameBar() {
+	public function isOT() {
+		$otPeriods = count($this->away->lineScores) - 4;
+		if($otPeriods > 0) {
+			return $otPeriods;
+		} else {
+			return 0;
+		}
+	}
+
+	public function printGame($boxID, $pickPage) {
+		?>
+		<div id="gameBox-<?= $boxID ?>" class="col-lg-6 gameBox">
+			<input type="hidden" id="box-<?= $boxID ?>" class="boxInput" value="<?= $this->id ?>">
+			<input type="hidden" id="status-<?= $boxID ?>" class="statusInput" value="<?= $this->statusID ?>">
+			<div id="outerGameWrapper-<?= $boxID ?>" <?php if($this->multiplier == 4) echo 'class="gotw"' ?>>
+				<div class="fullGameBox">
+					<div class="col-4 game">
+						<?php
+							$this->gameHeaderRow($boxID, $pickPage);
+							$this->away->printRowTeam('away', $pickPage, $boxID, $this->winnerID == $this->away->id);
+							$this->home->printRowTeam('home', $pickPage, $boxID, $this->winnerID == $this->home->id);
+						?>
+					</div>
+					<?php
+					$this->printSpreadBox($boxID);
+					$this->printInfoBox($boxID);
+					?>
+				</div>
+				<?php
+				$this->gameStatus($boxID);
+				$this->gameNameRow($boxID);
+				?>
+			</div>
+		</div>
+		<?php
+	}
+
+	private function gameHeaderRow($boxID, $pickPage) {
+		?>
+		<div class="row header-row">
+			<div id="header-status-<?= $boxID ?>" class="header-status col-3">
+			</div>
+			<?php
+			for($period = 1; $period <= 4; $period++) {
+				?>
+				<div id="header-lineScore-<?= $boxID ?>-<?= $period ?>" class="header-lineScore">
+					<?= $period ?>
+				</div>
+				<?php
+			}
+			?>
+			<div id="header-OT-<?= $boxID ?>" class="header-lineScore">
+				<?php
+				if($this->isOT()) {
+					?>
+					OT (<?= $this->isOT()?>)
+					<?php
+				}
+				?>
+			</div>
+			<div id="header-total-<?= $boxID ?>" class="header-total">
+				T
+			</div>
+			<?php
+			if($pickPage) {
+				?>
+				<div id="header-others-<?= $boxID ?>" class="header-others">
+					Picked
+				</div>
+				<?php
+			}
+			?>
+		</div>
+		<?php
+	}
+
+	private function printSpreadBox($boxID) {
+		?>
+		<div id="spreadBox-<?= $boxID ?>" class="spreadBox">
+			<div id="spreadFirstRow-<?= $boxID ?>" class="spreadFirstRow">
+				Spread
+			</div>
+			<?php
+			if($this->spread == 0 || $this->spread == null) {
+				?>
+				<div id="spreadEven-<?= $boxID ?>" class="spreadEven">
+					<?php if($this->spread != null) echo 'EVEN'; ?>
+				</div>
+				<?php
+			} else {
+				?>
+				<div id="spreadRow-<?= $boxID ?>-away" class="spreadRow">
+					<?php
+					if($this->favID == $this->away->id) {
+						echo '-' . number_format($this->spread, 1);
+					}
+					?>
+				</div>
+				<div id="spreadRow-<?= $boxID ?>-home" class="spreadRow">
+					<?php
+					if($this->favID == $this->home->id) {
+						echo '-' . number_format($this->spread, 1);
+					}
+					?>
+				</div>
+				<?php
+			}
+			?>
+		</div>
+		<?php
+	}
+
+	private function printInfoBox($boxID) {
+		?>
+		<div id="infoBox-<?= $boxID ?>" class="infoBox">
+			<div id="venueName-<?= $boxID ?>" class="venueName">
+				<?= $this->venue->name ?>
+			</div>
+			<div id="cityState-<?= $boxID ?>" class="cityState">
+				<?= $this->venue->cityState(); ?>
+			</div>
+			<div id="gameLink-<?= $boxID ?>" class="gameLink">
+			<a id="espnLink-<?= $boxID ?>"
+				class="espnLink d-inline-flex focus-ring py-1 px-1 text-decoration-none border rounded-2 link-light" 
+				href="https://www.espn.com/college-football/game/_/gameId/<?= $this->id ?>"
+				target="_blank">ESPN Gamecast</a>
+			</div>
+		</div>
+		<?php
+	}
+
+	private function gameStatus($boxID) {
+		$class = 'gameStatus';
+		if(!in_array($this->statusID, array(2, 22))) {
+			$class .= ' hidden';
+		}
+		if($this->gameName() == '') {
+			$class .= ' lastRow';
+		}
+		?>
+		<div id="gameStatus-<?= $this->id ?>" class="<?= $class ?>">
+			<?php
+			if(in_array($this->statusID, array(2, 22))) {
+				if($this->possession == $this->home->id) {
+					$hasBall = 'home';
+					$notBall = 'away';
+				} else {
+					$hasBall = 'away';
+					$notBall = 'home';
+				}
+
+				$yardLine = $this->yardLine;
+				if($yardLine > 50) {
+					$yardLine = abs($yardLine - 100);
+					$fieldSide = $this->away->abbr;
+				} else if($yardLine != 50) {
+					$fieldSide = $game->home->abbr;
+				} else {
+					$fieldSide = 'the';
+				}
+
+				if($yardLine - $this->toGo == 0) {
+					$toGo = 'Goal';
+				} else {
+					$toGo = $this->toGo;
+				}
+
+				if($game->down > 0) {
+					$gameStatus = getOrdinal($this->down) . ' and ' . $toGo . ' at ' . $fieldSide . ' ' . $yardLine;
+				} else {
+					$gameStatus = 'Kickoff ' . $this->{$hasBall}->abbr;
+				}
+
+				echo $gameStatus;
+			}
+			?>
+		</div>
+		<?php
+	}
+
+	private function gameName() {
 		$gameString = '';
 		if($this->isRivalry) {
 			if($this->rivalryName != null) {
@@ -188,6 +368,132 @@ class gameObj {
 			$gameString .= $this->customName;
 		}
 		return $gameString;
+	}
+
+	private function gameNameRow($boxID) {
+		$gameString = $this->gameName();
+		
+		$hidden = '';
+		if($gameString == '') {
+			$hidden = 'hidden';
+		}
+		?>
+		
+		<div id="gameName-<?= $boxID ?>" class="gameName lastRow <?= $hidden ?>">
+			<?= $gameString ?>
+		</div>
+		<?php
+	}
+
+	public function printGamePicker($boxID) {
+		?>
+		<div id="pickerContainer-<?= $boxID ?>" class="pickerContainer col-lg-6">
+			<div id="pickRow-<?= $boxID ?>" class="pickRow row">
+				<div id="userSelectCellUs-<?= $boxID ?>" class="userSelectCell">
+					<div id="selectLogoCellUs-<?= $boxID ?>" class="selectLogoCell">
+						<?php
+						if($this->pick > 0) {
+							?>
+							<img id="logoPick-<?= $boxID ?>"
+								class="logoPick"
+								src="<?= $GLOBALS['baseURL'] ?>/images/teamLogo.php?teamID=<?= $this->pick ?>&height=30">
+							<?php
+						}
+						?>
+					</div>
+					<?php 
+					$this->selectPickerUs($boxID); 
+					$this->scoreCell($boxID);
+					?>
+				</div>
+				<?php
+				$this->selectPickerThem($boxID);
+				?>
+			</div>
+		</div>
+		<?php
+	}
+
+	private function selectPickerUs($boxID) {
+		$class = 'form-select selectPick';
+		if($this->completed) {
+			if(($this->winnerID == $this->pick) || ($this->jokeGame && $this->pick > 0)) {
+				$class .= ' winner-' . $this->pick;
+			} else {
+				$class .= ' loserSelect';
+			}
+		}
+
+		if($this->date <= new DateTime()) {
+			$disabled = 'disabled';
+		} else {
+			$disabled = '';
+		}
+
+		if($this->pick < 0) {
+			$nullSelect = 'selected';
+			$awaySelect = '';
+			$homeSelect = '';
+		} else if($this->pick == $this->away->id) {
+			$nullSelect = '';
+			$awaySelect = 'selected';
+			$homeSelect = '';
+		} else {
+			$nullSelect = '';
+			$awaySelect = '';
+			$homeSelect = 'selected';
+		}
+		?>
+		<div id="selectCellUs-<?= $boxID ?>" class="selectCell">
+			<select id="pick-<?= $boxID ?>" class="<?= $class ?>" onchange="setPick(<?= $boxID ?>)" <?= $disabled ?>>
+				<option value="-1" <?= $nullSelect ?>></option>
+				<option value="<?= $this->away->id ?>" <?= $awaySelect ?>><?= $this->away->school ?></option>
+				<option value="<?= $this->home->id ?>" <?= $homeSelect ?>><?= $this->home->school ?></option>
+			</select>
+		</div>
+		<?php
+	}
+
+	private function scoreCell($boxID) {
+		$class = 'score';
+		if($this->completed) {
+			if(($this->winnerID == $this->pick) || ($this->jokeGame && $this->pick > 0)) {
+				$class .= ' scoreWinner';
+				$_SESSION['userScore'] += $this->multiplier;
+			} else {
+				$class .= ' scoreLoser';
+				if($_SESSION['userScore'] == 0) {
+					$_SESSION['userScore'] = '0';
+				}
+			}
+		}
+		?>
+		<div id="score-<?= $boxID ?>" class="<?= $class ?>">
+			<?php 
+			if($this->completed) {
+				echo $_SESSION['userScore'];
+			}
+			?>
+		</div>
+		<?php
+	}
+
+	private function selectPickerThem($boxID) {
+		?>
+		<div id="userSelectCellThem-<?= $boxID ?>" class="userSelectCell">
+			<div id="selectLogoCellThem-<?= $boxID ?>" class="selectLogoCell">
+			</div>
+			<div id="selectCellThem-<?= $boxID ?>" class="selectCell">
+				<select id="compare-<?= $boxID ?>" class="form-select othersSelectPick" disabled>
+					<option value="-1" selected></option>
+					<option value="<?= $this->away->id ?>"><?= $this->away->school ?></option>
+					<option value="<?= $this->home->id ?>"><?= $this->home->school ?></option>
+				</select>
+			</div>
+			<div id="compareScore-<?= $boxID ?>" class="score">
+			</div>
+		</div>
+		<?php
 	}
 }
 
@@ -235,6 +541,91 @@ class teamObj {
 				$this->lineScores[$period['period']] = $period['points'];
 			}
 		}
+	}
+
+	public function printRowTeam($homeAway, $pickPage, $boxID, $isWinner) {
+		if($isWinner) {
+			$winnerClass = 'winner-' . $this->id;
+		} else {
+			$winnerClass = '';
+		}
+
+		?>
+		<div id="teamRow-<?= $boxID ?>-<?= $homeAway ?>" class="row gameRow <?= $winnerClass ?>">
+			<div id="logoCell-<?= $boxID ?>-<?= $homeAway ?>" class="logo">
+				<img id="logo-<?= $boxID ?>-<?= $homeAway ?>" src="images/teamLogo.php?teamID=<?= $this->id ?>&height=30">
+			</div>
+			<div id="rank-<?= $boxID ?>-<?= $homeAway ?>" class="rank">
+				<?= $this->rank ?>
+			</div>
+			<div id="teamName-<?= $boxID ?>-<? $homeAway ?>" class="teamName">
+				<div id="teamName-upper-<?= $boxID ?>-<?= $homeAway ?>" class="upperName">
+					<a id="teamLink-<?= $boxID ?>-<?= $homeAway ?>" 
+						class="link-light link-underline link-underline-opacity-100-hover link-underline-opacity-0 <?= $winnerClass ?>"
+						href="https://www.espn.com/college-football/team/_/id/<?= $this->id ?>" target="_blank">
+						<?= $this->school ?>
+					</a>
+				</div>
+				<div id="teamName-lower-<?= $boxID ?>-<?= $homeAway ?>" class="lowerRecord">
+					<?php
+					echo '(' . $this->wins . '-' . $this->losses;
+					if($this->conf->id != 18 && $this->conf->id != 32) {
+						echo ', ' . $this->confWins . '-' . $this->confLosses . ' ' . $this->conf->abbr;
+					}
+					echo ')';
+					?>
+				</div>
+			</div>
+			<div id="scheduleCell-<?= $boxID ?>" class="scheduleCell">
+				<button id="teamSchedule-<?= $boxID ?>-<?= $homeAway ?>" class="surroundHamburger" data-bs-toggle="popover" data-bs-html="true" data-bs-custom-class="scheduleBox" value="teamSchedule-<?= $this->id ?>">☰▸</button>
+			</div>
+			<?php
+			$this->printLineScores($boxID, $homeAway);
+			if($pickPage) {
+				?>
+				<div id="others-<?= $boxID ?>-<?= $homeAway ?>" class="othersPicks">
+					<?= $this->picked ?>
+				</div>
+				<?php
+			}
+			?>
+		</div>
+		<?php
+	}
+
+	private function printLineScores($boxID, $homeAway) {
+		$teamTotal = null;
+		$line = 'lineScoreFirst';
+		$periods = count($this->lineScores);
+		for($period = 1; $period <= 5; $period++) {
+			?>
+			<div id="lineScore-<?= $boxID ?>-<?= $homeAway ?>-<?= $period ?>" class="lineScore <?= $line ?>">
+			<?php
+			if($period != 5) {
+				if(isset($this->lineScores[$period])) {
+					echo $this->lineScores[$period];
+					$teamTotal += $this->lineScores[$period];
+				}
+			} else {
+				if($periods > 4) {
+					$otScore = 0;
+					for($ot = 5; $ot <= $periods; $ot++) {
+						$otScore += $this->lineScores[$ot];
+					}
+					echo $otScore;
+					$teamTotal += $otScore;
+				}
+			}
+			$line = '';
+			?>
+			</div>
+			<?php
+		}
+		?>
+		<div id="total-<?= $boxID ?>-<?= $homeAway ?>" class="total">
+			<?= $teamTotal ?>
+		</div>
+		<?php
 	}
 }
 
@@ -291,6 +682,10 @@ class venueObj {
 		$this->city = $venueArray['city'];
 		$this->state = $venueArray['state'];
 		$this->country = $venueArray['country'];
+	}
+
+	function cityState() {
+		return $this->city . ', ' . $this->stateCountry();
 	}
 
 	function stateCountry() {
