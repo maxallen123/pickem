@@ -210,7 +210,7 @@ function mailScoreboard($dbConn, $users, $curWeek) {
 function mailWeeksGames($dbConn, $newWeek, $oldWeek) {
 	$cssClasses = emailClasses();
 
-	$games = getWeeksGames($dbConn, $newWeek);
+	$games = getWeeksGames($dbConn, $newWeek, $oldWeek);
 	$ranks = getRankArray($dbConn, $newWeek);
 	ob_start();
 

@@ -40,6 +40,12 @@ function getCurWeek($dbConn) {
 	return new weekObj($weekArray);
 }
 
+function getLastWeek($dbConn) {
+	$query = 'SELECT TOP(1) * FROM weeks WHERE endDate < DATEADD(' . $GLOBALS['graceUnit'] . ',' . $GLOBALS['graceOffset'] .', GETDATE()) ORDER BY endDate DESC';
+	$weekArray = sqlsrv_fetch_array(sqlsrv_query($dbConn, $query));
+	return new weekObj($weekArray);
+}
+
 function getWeekNumber($dbConn, $year, $seasonType, $weekNum) {
 	$query = 'SELECT * FROM weeks WHERE year = ? AND seasonType = ? AND week = ?';
 	$queryArray = array($year, $seasonType, $weekNum);
@@ -61,7 +67,7 @@ function getAllYearWeeks($dbConn, $year) {
 }
 
 // Returns array of specified week's games 
-function getWeeksGames($dbConn, $curWeek) {
+function getWeeksGames($dbConn, $curWeek, $lastWeek) {
 	$query = 'SELECT 
 				games.id, games.weekID, games.name, games.customName, games.multiplier, games.jokeGame, games.isNeutral,
 				homeID, home.school AS homeSchool, home.mascot AS homeMascot, home.abbreviation as homeAbbr, home.conferenceID AS homeConfID, home.comedyName AS homeComedyName,
@@ -101,7 +107,7 @@ function getWeeksGames($dbConn, $curWeek) {
 				OR (games.weekID = ? AND forceInclude = 1)
 				OR (rivalries.teamAID IS NOT NULL AND games.weekID = ?)
 				ORDER BY startDate ASC, games.id ASC';
-	$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $curWeek->startDate, $curWeek->weekID, $curWeek->weekID);
+	$queryArray = array($curWeek->weekID, $GLOBALS['threshold'], $lastWeek->endDate, $curWeek->weekID, $curWeek->weekID);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	print_r(sqlsrv_errors());
 	if(sqlsrv_has_rows($rslt)) {

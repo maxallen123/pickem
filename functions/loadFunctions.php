@@ -392,21 +392,15 @@ function updateESPNSpread2($dbConn, $gameID, $game) {
 				$favID = $row['awayID'];
 				$dogID = $row['homeID'];
 			}
-		} else {
-			$openSpread = null;
-			$openSpreadTime = null;
-			$spread = null;
-			$favID = null;
-			$dogID = null;
-		}
 
-		if($spread != null) {
-			$spread = abs($spread);
-		}
+			if($spread != null) {
+				$spread = abs($spread);
+			}
 
-		$query = 'UPDATE games SET openSpread = ?, openSpreadTime = ?, closeSpread = ?, favID = ?, dogID = ? WHERE id = ?';
-		$queryArray = array($openSpread, $openSpreadTime, $spread, $favID, $dogID, $gameID);
-		sqlsrv_query($dbConn, $query, $queryArray);
+			$query = 'UPDATE games SET openSpread = ?, openSpreadTime = ?, closeSpread = ?, favID = ?, dogID = ? WHERE id = ?';
+			$queryArray = array($openSpread, $openSpreadTime, $spread, $favID, $dogID, $gameID);
+			sqlsrv_query($dbConn, $query, $queryArray);
+		}
 	}
 }
 

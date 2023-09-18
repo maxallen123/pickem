@@ -4,7 +4,8 @@ require('functions.php');
 if(session_status() == PHP_SESSION_NONE) session_start();
 $dbConn = sqlConnect();
 $curWeek = getCurWeek($dbConn);
-$games = getWeeksGames($dbConn, $curWeek);
+$lastWeek = getLastWeek($dbConn);
+$games = getWeeksGames($dbConn, $curWeek, $lastWeek);
 $users = getUsers($dbConn, $curWeek);
 pageHeader($dbConn, 'Week '. $curWeek->week);
 if(isset($_SESSION['uid'])) {

@@ -61,8 +61,8 @@ function setPick($dbConn) {
 
 function updatePage($dbConn) {
 	$curWeek = getCurWeek($dbConn);
-	$ranks = getRankArray($dbConn, $curWeek);
-	$weeksGames = getWeeksGames($dbConn, $curWeek, $ranks);
+	$lastWeek = getLastWeek($dbConn);
+	$weeksGames = getWeeksGames($dbConn, $curWeek, $lastWeek);
 	echo json_encode($weeksGames);
 }
 
