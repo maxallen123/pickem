@@ -313,6 +313,7 @@ function updateGOTW(boxID, game) {
 
 function updateTeam(boxID, game, homeAway) {
 	var teamRow = '#teamRow-' + boxID + '-' + homeAway;
+	var rankCell = `#rank-${boxID}-${homeAway}`;
 	var teamLogo = '#logo-' + boxID + '-' + homeAway;
 	var teamLink = '#teamLink-' + boxID + '-' + homeAway;
 
@@ -322,6 +323,8 @@ function updateTeam(boxID, game, homeAway) {
 		winnerClass = 'winner-' + teamID;
 	}
 	var teamLinkClassArray = ['link-light', 'link-underline', 'link-underline-opacity-100-hover', 'link-underline-opacity-0', winnerClass];
+
+	$(rankCell).text(game[homeAway]['rank']);
 
 	$(teamRow).removeClass();
 	$(teamRow).addClass('row');
