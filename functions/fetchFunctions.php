@@ -191,7 +191,9 @@ function getUsers($dbConn, $curWeek) {
 // Get Array of game IDs. $all == 1 means all games, 0 means just pick games
 function getWeeksGameIDs($dbConn, $curWeek, $all) {
 	$gameIDArray = array();
-	$query = 'SELECT id FROM games LEFT JOIN rivalries ON (games.homeID = rivalries.teamAID AND games.awayID = rivalries.teamBID) OR (games.homeID = rivalries.teamBID AND games.awayID = rivalries.teamAID) WHERE ';
+	$query = 'SELECT id FROM games 
+				LEFT JOIN rivalries ON (games.homeID = rivalries.teamAID AND games.awayID = rivalries.teamBID) OR (games.homeID = rivalries.teamBID AND games.awayID = rivalries.teamAID) 
+				WHERE ';
 	if($all) {
 		$query .= 'weekID = ?';
 		$queryArray = array($curWeek->weekID);
