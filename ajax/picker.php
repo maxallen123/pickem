@@ -69,6 +69,7 @@ function updatePage($dbConn) {
 function compare($dbConn) {
 	$userID = $_POST['userID'];
 	$curWeek = getCurWeek($dbConn);
+	$lastWeek = getLastWeek($dbConn);
 	$weeksGames = getWeeksGameIDs($dbConn, $curWeek, 0);
 	foreach($weeksGames as $game) {
 		$picks[$game] = -1;
@@ -78,9 +79,9 @@ function compare($dbConn) {
 		FROM games 
 		LEFT JOIN picks ON picks.gameID = games.id AND picks.userID = ?
 		LEFT JOIN rivalries ON (games.homeID = rivalries.teamAID AND games.awayID = rivalries.teamBID) OR (games.homeID = rivalries.teamBID AND games.awayID = rivalries.teamAID)
-		WHERE (games.weekID = ? AND openSpread <= ? AND (games.openSpreadTime <= DATEADD(' . $GLOBALS['graceUnit'] . ',' . $GLOBALS['graceOffset'] . ', ?) OR games.openSpreadTime IS NULL)) 
+		WHERE (games.weekID = ? AND openSpread <= ? AND (games.openSpreadTime <= DATEADD(day, 1, ?) OR games.openSpreadTime IS NULL)) 
 		OR (games.weekID = ? AND forceInclude = 1) OR (games.weekID = ? AND rivalries.teamAID IS NOT NULL) ORDER BY startDate ASC';
-	$queryArray = array($userID, $curWeek->weekID, $GLOBALS['threshold'], $curWeek->startDate, $curWeek->weekID, $curWeek->weekID);
+	$queryArray = array($userID, $curWeek->weekID, $GLOBALS['threshold'], $lastWeek->endDate, $curWeek->weekID, $curWeek->weekID);
 	$rslt = sqlsrv_query($dbConn, $query, $queryArray);
 	$picks = array();
 	if(sqlsrv_has_rows($rslt)) {
