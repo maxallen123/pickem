@@ -61,5 +61,5 @@ for($boxID = 0; $boxID <= 150; $boxID++) {
 }
 ?>
 </body>
-<script src="js/picker.js?version=8"></script>
+<script src="js/picker.js?version=9"></script>
 </html> 

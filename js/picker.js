@@ -61,9 +61,9 @@ function setPick(boxID) {
 		success:
 			function () {
 				if(selectVal != -1) {
-					$('#logoCell-' + gameID).html('<img src="images/teamLogo.php?teamID=' + selectVal + '&height=30">')
+					$('#selectLogoCellUs-' + boxID).html('<img src="images/teamLogo.php?teamID=' + selectVal + '&height=30">')
 				} else {
-					$('#logoCell-' + gameID).html('');
+					$('#selectLogoCellUs-' + boxID).html('');
 				}
 				updatePage();
 			}
