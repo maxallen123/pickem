@@ -177,7 +177,7 @@ class gameObj {
 		<div id="gameBox-<?= $boxID ?>" class="col-lg-6 gameBox">
 			<input type="hidden" id="box-<?= $boxID ?>" class="boxInput" value="<?= $this->id ?>">
 			<input type="hidden" id="status-<?= $boxID ?>" class="statusInput" value="<?= $this->statusID ?>">
-			<div id="outerGameWrapper-<?= $boxID ?>" <?php if($this->multiplier == 4) echo 'class="gotw"' ?>>
+			<div id="outerGameWrapper-<?= $boxID ?>" <?php if($this->multiplier > 1) echo 'class="gotw"' ?>>
 				<div class="fullGameBox">
 					<div class="col-4 game">
 						<?php
