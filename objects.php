@@ -303,7 +303,7 @@ class gameObj {
 			$class .= ' lastRow';
 		}
 		?>
-		<div id="gameStatus-<?= $this->id ?>" class="<?= $class ?>">
+		<div id="gameStatus-<?= $boxID ?>" class="<?= $class ?>">
 			<?php
 			if(in_array($this->statusID, array(2, 22))) {
 				if($this->possession == $this->home->id) {
